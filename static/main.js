@@ -1,96 +1,224 @@
-var app = document.getElementById("app");
+const application = document.getElementById('app');
 
-headerContent = {
+const config = {
+    menu: {
+        href: '/menu',
+        text: 'Меню!',
+        open: menuPage,
+    },
+    signup: {
+        href: '/signup',
+        text: 'Зарегистрироваться!',
+        open: signupPage,
+    },
+    login: {
+        href: '/login',
+        text: 'Авторизоваться!',
+        open: loginPage,
+    },
     profile: {
-        link: '/profile',
+        href: '/profile',
+        text: 'Профиль',
+        open: profilePage,
     },
-    news: {
-        link: '/news '
-    },
-    auth: {
-        link: '/auth',
-    },
-}
-
-function home() {
-    const headerContent = document.createElement('div');
-    headerContent.classList.add('info-user');
-
-    const centralGradient = document.createElement('div');
-    centralGradient.classList.add('about-user');
-    ava = document.createElement('div');
-    ava.className = 'ava';
-    centralGradient.appendChild(ava);
-
-    headerContent.appendChild(centralGradient);
-
-    const bottomContent = document.createElement('div');
-    bottomContent.classList.add('content-user');
-
-    const post = document.createElement('div');
-    post.className = 'post';
-    bottomContent.appendChild(post);
-    getContent(bottomContent);
-    app.appendChild(headerContent);
-    app.appendChild(bottomContent);
-}
-
-function getContent(bottomContent) {
-    fetch('https://jsonplaceholder.typicode.com/posts')
-        .then(response => response.json())
-        .then(json => {
-            json
-                .map(post => {
-                    const newPost = document.createElement('div');
-                    newPost.className = 'post';
-                    newPost.innerHTML = post['body'];
-                    return newPost;
-                })
-                .forEach(newPost => bottomContent.appendChild(newPost))
-        })
-
-}
-
-function news() {
-}
-
-function generateMaket() {
-    generateHeader();
-    //generateBody();
-    //generateBottom();
-}
-
-function changePage(link) {
-    app.innerHTML = "";
-    generateMaket();
-    if (link == '/profile') {
-        home();
-    } else if (link == '/news') {
-        news();
+    about: {
+        href: '/about',
+        text: 'Контакты',
     }
 }
 
-function generateHeader() {
-    header = document.createElement('div');
-    Object
-        .keys(headerContent)
-        .map((item) => {
-            nav = document.createElement('div');
-            nav.classList.add('top-link');
-            nav.innerHTML = item[0].toUpperCase() + item.slice(1);
-            nav.dataset.link = headerContent[item]['link'];
-            nav.addEventListener('click', (evt) => {
-                const {target} = evt;
-                // console.log(target.dataset.link);
-                changePage(target.dataset.link);
-            });
-            return nav;
-        })
-        .forEach((nav) => {
-            header.appendChild(nav);
-        })
-    header.classList.add('header');
-    app.appendChild(header);
+function createInput(type, text, name) {
+    const input = document.createElement('input');
+    input.type = type;
+    input.name = name;
+    input.placeholder = text;
+
+    return input;
 }
 
-changePage('/profile');
+function menuPage() {
+    application.innerHTML = '';
+
+    Object
+        .entries(config)
+        .map(([menuKey, {text, href}]) => {
+            const menuItem = document.createElement('a');
+            menuItem.href = href;
+            menuItem.textContent = text;
+            menuItem.dataset.section = menuKey;
+
+            return menuItem;
+        })
+        .forEach(element => application.appendChild(element))
+    ;
+}
+
+function signupPage() {
+    application.innerHTML = '<h1>Регистрация!</h1>';
+
+    const form = document.createElement('form');
+
+    const loginInput = createInput('login', 'Емайл', 'login');
+    const passwordInput = createInput('password', 'Пароль', 'password');
+
+    const submitBtn = document.createElement('input');
+    submitBtn.type = 'submit';
+    submitBtn.value = 'Зарегистрироваться!';
+
+    const back = document.createElement('a');
+    back.href = '/menu';
+    back.textContent = 'Назад';
+    back.dataset.section = 'menu';
+
+    form.appendChild(loginInput);
+    form.appendChild(passwordInput);
+    form.appendChild(submitBtn);
+    form.appendChild(back);
+
+    application.appendChild(form);
+
+    form.addEventListener('submit', (evt) => {
+        evt.preventDefault();
+
+        const login = loginInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        ajax('POST', '/register', {login, password}, (status, responseBody) => {
+            console.log(status)
+            console.log(responseBody)
+        });
+    });
+}
+
+function loginPage() {
+    application.innerHTML = '';
+    const form = document.createElement('form');
+
+    const loginInput = createInput('login', 'Емайл', 'login');
+    const passwordInput = createInput('password', 'Пароль', 'password');
+
+    const submitBtn = document.createElement('input');
+    submitBtn.type = 'submit';
+    submitBtn.value = 'Авторизироваться!';
+
+    const back = document.createElement('a');
+    back.href = '/menu';
+    back.textContent = 'Назад';
+    back.dataset.section = 'menu';
+
+    form.appendChild(loginInput);
+    form.appendChild(passwordInput);
+    form.appendChild(submitBtn);
+    form.appendChild(back);
+
+
+    form.addEventListener('submit', (evt) => {
+        evt.preventDefault();
+
+        const login = loginInput.value.trim();
+        const password = passwordInput.value.trim();
+
+        ajax(
+            'POST',
+            '/login',
+            {login, password},
+            (status, response) => {
+                if (status === 200) {
+                    // profilePage();
+                    console.log(JSON.parse(response))
+                } else {
+                    const {error} = JSON.parse(response);
+                    alert(error);
+                }
+            }
+        )
+
+    });
+
+    application.appendChild(form);
+}
+
+function profilePage() {
+    application.innerHTML = '';
+
+    ajax('GET', '/profile', null, (status, responseText) => {
+        let isAuthorized = false;
+
+        if (status === 200) {
+            isAuthorized = true;
+        }
+
+        if (status === 401) {
+            isAuthorized = false;
+        }
+
+
+        if (isAuthorized) {
+            const responseBody = JSON.parse(responseText);
+
+            console.log(responseBody)
+
+            const logout = document.createElement('a')
+            logout.href = '#'
+            logout.innerText = 'Logout'
+            logout.dataset.section = 'menu';
+            application.appendChild(logout)
+            logout.addEventListener('click', e => {
+                const {target} = e;
+                e.preventDefault()
+                ajax('POST', '/logout', null, (status, responseText) => {
+                    //handle if POST failed
+                    if (status == 200) {
+                        console.log("logout")
+                    }
+                })
+
+            })
+
+
+            const back = document.createElement('a');
+            back.href = '/menu';
+            back.textContent = 'Назад';
+            back.dataset.section = 'menu';
+
+            application.appendChild(back);
+
+            return;
+        }
+
+        alert('АХТУНГ! НЕТ АВТОРИЗАЦИИ');
+
+        loginPage();
+    });
+}
+
+menuPage();
+
+application.addEventListener('click', e => {
+    const {target} = e;
+
+    if (target instanceof HTMLAnchorElement) {
+        e.preventDefault();
+        config[target.dataset.section].open();
+    }
+});
+
+function ajax(method, url, body = null, callback) {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, url, true);
+    xhr.withCredentials = true;
+
+    xhr.addEventListener('readystatechange', function () {
+        if (xhr.readyState !== XMLHttpRequest.DONE) return;
+
+        callback(xhr.status, xhr.responseText);
+    });
+
+    if (body) {
+        xhr.setRequestHeader('Content-type', 'application/json; charset=utf8');
+        xhr.send(JSON.stringify(body));
+        return;
+    }
+
+    xhr.send();
+}
