@@ -172,7 +172,6 @@ function profilePage() {
                         console.log("logout")
                     }
                 })
-
             })
 
 

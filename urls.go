@@ -2,14 +2,14 @@ package main
 
 import (
 	"net/http"
-	c "vk.com/controllers"
+	h "vk.com/cmd/handlers"
 )
 
 func routes(mux *http.ServeMux) {
 	mux.Handle("/", http.FileServer(http.Dir("./static")))
-	mux.HandleFunc("/register", c.RegisterPage)
-	mux.HandleFunc("/login", c.LoginPage)
-	mux.HandleFunc("/logout", c.LogoutPage)
-	mux.HandleFunc("/profile", c.ProfilePage)
+	mux.HandleFunc("/register", h.RegisterPage)
+	mux.HandleFunc("/login", h.LoginPage)
+	mux.HandleFunc("/logout", h.LogoutPage)
+	mux.HandleFunc("/profile", h.ProfilePage)
 }
 
