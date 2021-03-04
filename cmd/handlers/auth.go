@@ -22,11 +22,10 @@ var inProfile string = `{"Auth":"success"}`
 
 func RegisterPage(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	fmt.Println("here")
+
 	if r.Method != http.MethodPost {
 		return
 	}
-	fmt.Println("here")
 
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
@@ -34,7 +33,6 @@ func RegisterPage(w http.ResponseWriter, r *http.Request) {
 	i.IDCounter++
 	newUser.ID = i.IDCounter
 
-	fmt.Println(newUser.Login)
 	i.Users[newUser.Login] = newUser
 
 	fmt.Printf("%+v\n", newUser)
@@ -109,7 +107,6 @@ func isUserExist(user i.User) bool {
 		if u.Password == user.Password {
 			return true
 		}
-		return false
 	}
 	return false
 }
