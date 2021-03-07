@@ -1,0 +1,149 @@
+swagger: "2.0"
+info:
+  title: MyMotivation API
+  description: MyMotivation - social network
+  version: 1.0.0
+
+host: localhost
+
+schemes:
+  - http
+  - https
+
+basePath: /api/v1
+
+produces:
+  - application/json
+consumes:
+  - application/json
+  
+paths:
+  /register:
+    post:
+      summary: Create a new user
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: registration data
+          required: true
+          schema:
+            $ref: "#/definitions/RegistrationForm"
+      responses:
+        201:
+          description: Created
+
+  /login:
+    post:
+      summary: Login user
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: credentials
+          required: true
+          schema:
+            $ref: "#/definitions/Credentials"
+      responses:
+        200:
+          description: OK
+  
+  /logout:
+    post:
+      summary: Logout user
+      responses:
+        200:
+          description: OK
+  
+  /users:
+    get:
+      summary: Get current user profile
+      responses:
+        200:
+          description: A User object
+          schema:
+            $ref: "#/definitions/User"
+              
+
+    post:
+      summary: Update current user profile
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: user
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        200:
+          description: OK
+
+  /users/{userId}:
+    get:
+      summary: Get user by id
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: string
+
+      responses:
+        200:
+          description: A User object
+          schema:
+            $ref: "#/definitions/UserWithoutPrivateData"
+
+definitions:
+  RegistrationForm:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      avatar:
+        type: string
+    required:
+      - login
+      - password
+      - firstName
+      - lastName
+      - avatar
+
+  Credentials:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    required:
+      - login
+      - password
+      
+  UserWithoutPrivateData:
+    properties:
+      id:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      avatar:
+        type: string
+
+  User:
+    properties:
+      id:
+        type: string
+      login:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      avatar:
+        type: string
