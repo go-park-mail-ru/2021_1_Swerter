@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 
 	"my-motivation/apps"
 
@@ -13,7 +14,7 @@ func main() {
 	apps.SetupRouterMain(mainRouter)
 
 	server := http.Server{
-		Addr:    ":80",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: mainRouter,
 	}
 
