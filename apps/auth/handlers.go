@@ -1,10 +1,10 @@
 package auth
 
 import (
-	i "../../internal"
-	"../../utils"
 	"encoding/json"
 	"fmt"
+	i "my-motivation/internal"
+	"my-motivation/utils"
 	"net/http"
 	"time"
 )

@@ -3,7 +3,8 @@ package main
 import (
 	"net/http"
 
-	"./apps"
+	"my-motivation/apps"
+
 	"github.com/gorilla/mux"
 )
 

@@ -1,8 +1,9 @@
 package apps
 
 import (
-	"./auth"
-	"./users"
+	"my-motivation/apps/auth"
+	"my-motivation/apps/users"
+
 	"github.com/gorilla/mux"
 )
 

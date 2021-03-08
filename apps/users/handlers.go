@@ -3,7 +3,8 @@ package users
 import (
 	"net/http"
 
-	"../../utils"
+	"my-motivation/utils"
+
 	"github.com/gorilla/mux"
 )
 
