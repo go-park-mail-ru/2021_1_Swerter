@@ -2,8 +2,10 @@ package main
 
 import (
 	"net/http"
+	"os"
 
-	"./apps"
+	"my-motivation/apps"
+
 	"github.com/gorilla/mux"
 )
 
@@ -12,7 +14,7 @@ func main() {
 	apps.SetupRouterMain(mainRouter)
 
 	server := http.Server{
-		Addr:    ":8000",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: mainRouter,
 	}
 
