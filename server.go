@@ -13,7 +13,7 @@ func main() {
 	apps.SetupRouterMain(mainRouter)
 
 	server := http.Server{
-		Addr:    ":8000",
+		Addr:    ":80",
 		Handler: mainRouter,
 	}
 
