@@ -19,6 +19,10 @@ var inProfile string = `{"Auth":"success"}`
 func login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	decoder := json.NewDecoder(r.Body)
 	user := i.User{}
@@ -35,34 +39,41 @@ func login(w http.ResponseWriter, r *http.Request) {
 		i.SessionsCounter++
 		i.Sessions[user.Login] = user
 		http.SetCookie(w, &cookie)
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(loginSuccess))
 	} else {
-		w.Write([]byte(loginFail))
+		w.WriteHeader(http.StatusBadRequest)
 	}
-
-	http.Redirect(w, r, "/", http.StatusFound)
-	w.Write([]byte("LOGIN"))
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	session, err := r.Cookie("session_id")
 
 	if err == http.ErrNoCookie {
-		http.Redirect(w, r, "/", http.StatusFound)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(logoutSuccess))
-	http.Redirect(w, r, "/", http.StatusFound)
-	w.Write([]byte("LOGOUT"))
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
@@ -73,9 +84,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 	i.Users[newUser.Login] = newUser
 
 	fmt.Printf("%+v\n", newUser)
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(registerSuccess))
-	http.Redirect(w, r, "/", http.StatusFound)
-	w.Write([]byte("REGISTER"))
 }
 
 func isUserExist(user i.User) bool {
