@@ -8,8 +8,31 @@ import (
 	"net/http"
 )
 
-func getUserProfile(w http.ResponseWriter, r *http.Request) {
+func userProfile(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		getUserProfile(w, r)
+	}
+	if r.Method == http.MethodPost {
+		updateUserProfile(w, r)
+	}
+}
+
+
+func getUserProfile(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	utils.SetupCORS(&w)
+
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {

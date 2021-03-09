@@ -20,6 +20,10 @@ var inProfile string = `{"Auth":"success"}`
 func login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	if r.Method == "OPTIONS" {
 		return
@@ -47,6 +51,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	utils.SetupCORS(&w)
 
 	if r.Method == "OPTIONS" {
@@ -69,6 +74,10 @@ func logout(w http.ResponseWriter, r *http.Request) {
 func register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	if r.Method == "OPTIONS" {
 		return
