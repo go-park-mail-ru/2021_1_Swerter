@@ -3,7 +3,7 @@ package index
 import (
 	"net/http"
 
-	"../../utils"
+	"my-motivation/utils"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
