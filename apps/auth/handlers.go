@@ -31,10 +31,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    user.Login,
 			Expires:  expiration,
-			HttpOnly: true,
 		}
 		i.SessionsCounter++
-		i.Sessions[i.SessionsCounter] = user
+		i.Sessions[user.Login] = user
 		http.SetCookie(w, &cookie)
 		w.Write([]byte(loginSuccess))
 	} else {
@@ -48,6 +47,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 func logout(w http.ResponseWriter, r *http.Request) {
 	utils.SetupCORS(&w)
 	session, err := r.Cookie("session_id")
+
 	if err == http.ErrNoCookie {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -56,16 +56,13 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
 	w.Write([]byte(logoutSuccess))
+	http.Redirect(w, r, "/", http.StatusFound)
 	w.Write([]byte("LOGOUT"))
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
 	defer r.Body.Close()
-
-	if r.Method != http.MethodPost {
-		return
-	}
+	utils.SetupCORS(&w)
 
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
