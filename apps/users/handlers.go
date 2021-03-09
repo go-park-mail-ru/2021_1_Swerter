@@ -33,12 +33,14 @@ func getUserProfile(w http.ResponseWriter, r *http.Request) {
 
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	if isSessionExist(session.Value) {
-		user := i.Sessions[session.Value]
+		userID := i.Sessions[session.Value]
+		user := i.Users[i.IDToLogin[userID]]
+
 		userJson, _ := json.Marshal(&user)
 		w.Write(userJson)
 	}
@@ -50,20 +52,21 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	decoder := json.NewDecoder(r.Body)
-	user := i.User{}
-	decoder.Decode(&user)
+	newUser := i.User{}
+	decoder.Decode(&newUser)
 
 	if isSessionExist(session.Value) {
-		id := i.Sessions[session.Value].ID
-		user.ID = id
-		i.Sessions[session.Value] = user
-		w.WriteHeader(http.StatusOK)
-		log.Printf("User update success: %+v\n", user)
+		userID := i.Sessions[session.Value]
+		oldUser := i.Users[i.IDToLogin[userID]]
+		updateUser(&newUser, &oldUser)
+
+		log.Printf("User update success: %+v\n", newUser)
+		return
 	}
 
 	w.WriteHeader(http.StatusMethodNotAllowed)
@@ -80,3 +83,31 @@ func isSessionExist(session string) bool {
 	}
 	return false
 }
+
+func updateUser(newUser *i.User, oldUser *i.User) {
+	newUser.ID = oldUser.ID
+
+	if newUser.Login == "" {
+		newUser.Login = oldUser.Login
+	} else {
+		i.IDToLogin[newUser.ID] = newUser.Login
+	}
+
+	if newUser.Password == "" {
+		newUser.Password = oldUser.Password
+	} else {
+		newUser.Password = utils.HashPassword(newUser.Password)
+	}
+
+	if newUser.FirstName == "" {
+		newUser.FirstName = oldUser.FirstName
+	}
+
+	if newUser.LastName == "" {
+		newUser.LastName = oldUser.LastName
+	}
+
+	delete(i.Users, oldUser.Login)
+	i.Users[newUser.Login] = *newUser
+}
+
