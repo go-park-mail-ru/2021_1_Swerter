@@ -5,5 +5,5 @@ import (
 )
 
 func SetupRouterPosts(r *mux.Router) {
-	r.HandleFunc("", posts)
+	r.HandleFunc("", posts).Methods("GET", "OPTIONS")
 }

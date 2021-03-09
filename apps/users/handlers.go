@@ -1,9 +1,10 @@
 package users
 
 import (
-	"net/http"
-	"my-motivation/utils"
+	"encoding/json"
 	"github.com/gorilla/mux"
+	i "my-motivation/internal"
+	"my-motivation/utils"
 	"net/http"
 )
 
