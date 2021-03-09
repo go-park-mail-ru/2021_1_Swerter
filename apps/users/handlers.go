@@ -3,6 +3,7 @@ package users
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	i "my-motivation/internal"
 	"my-motivation/utils"
 	"net/http"
@@ -30,11 +31,6 @@ func getUserProfile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
 
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -49,8 +45,28 @@ func getUserProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateUserProfile(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	utils.SetupCORS(&w)
-	w.Write([]byte("updateUserProfile"))
+
+	session, err := r.Cookie("session_id")
+	if err == http.ErrNoCookie {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	user := i.User{}
+	decoder.Decode(&user)
+
+	if isSessionExist(session.Value) {
+		id := i.Sessions[session.Value].ID
+		user.ID = id
+		i.Sessions[session.Value] = user
+		w.WriteHeader(http.StatusOK)
+		log.Printf("User update success: %+v\n", user)
+	}
+
+	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 
 func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
