@@ -7,6 +7,7 @@ import (
 	"my-motivation/utils"
 	"net/http"
 	"time"
+	"log"
 )
 
 var registerSuccess string = `"status":"true"`
@@ -20,12 +21,16 @@ func login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
 
+	if r.Method == "OPTIONS" {
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	user := i.User{}
 	decoder.Decode(&user)
-	fmt.Printf("%+v\n", user)
 
 	if isUserExist(user) {
+		log.Printf("User login success: %+v\n", user)
 		expiration := time.Now().Add(10 * time.Hour)
 		cookie := http.Cookie{
 			Name:     "session_id",
@@ -35,47 +40,59 @@ func login(w http.ResponseWriter, r *http.Request) {
 		i.SessionsCounter++
 		i.Sessions[user.Login] = user
 		http.SetCookie(w, &cookie)
-		w.Write([]byte(loginSuccess))
 	} else {
-		w.Write([]byte(loginFail))
+		log.Printf("User login failed: %+v\n", user)
+		w.WriteHeader(http.StatusForbidden)
 	}
-
-	http.Redirect(w, r, "/", http.StatusFound)
-	w.Write([]byte("LOGIN"))
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
 	utils.SetupCORS(&w)
+
+	if r.Method == "OPTIONS" {
+		return
+	}
+
 	session, err := r.Cookie("session_id")
 
 	if err == http.ErrNoCookie {
-		http.Redirect(w, r, "/", http.StatusFound)
+		log.Println("No cookie was provided for logout")
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
-	w.Write([]byte(logoutSuccess))
-	http.Redirect(w, r, "/", http.StatusFound)
-	w.Write([]byte("LOGOUT"))
+	log.Println("Logout")
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
 
+	if r.Method == "OPTIONS" {
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
 	decoder.Decode(&newUser)
+
+	if _, ok := i.Users[newUser.Login]; ok {
+		log.Println("User already exists on register")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	i.IDCounter++
-	newUser.ID = i.IDCounter
+	newUser.ID = "id"+fmt.Sprint(i.IDCounter)
 
 	i.Users[newUser.Login] = newUser
 
-	fmt.Printf("%+v\n", newUser)
-	w.Write([]byte(registerSuccess))
-	http.Redirect(w, r, "/", http.StatusFound)
-	w.Write([]byte("REGISTER"))
+	responseBody := []byte("{\"userID\":"+newUser.ID+"}")
+	w.Write(responseBody)
+
+	fmt.Printf("New user. Private user data: %+v\n", newUser)
 }
 
 func isUserExist(user i.User) bool {
