@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	i "my-motivation/internal"
 	"my-motivation/utils"
@@ -33,21 +34,25 @@ func login(w http.ResponseWriter, r *http.Request) {
 	user := i.User{}
 	decoder.Decode(&user)
 
-	if isUserExist(user) {
-		log.Printf("User login success: %+v\n", user)
-		expiration := time.Now().Add(10 * time.Hour)
-		cookie := http.Cookie{
-			Name:     "session_id",
-			Value:    user.Login,
-			Expires:  expiration,
-		}
-		i.SessionsCounter++
-		i.Sessions[user.Login] = user
-		http.SetCookie(w, &cookie)
-	} else {
+	u, err := getUser(user);
+	if err!=nil {
 		log.Printf("User login failed: %+v\n", user)
 		w.WriteHeader(http.StatusForbidden)
+		return
 	}
+
+	log.Printf("User login success: %+v\n", u)
+	expiration := time.Now().Add(10 * time.Hour)
+	cookie := http.Cookie{
+		Name:     "session_id",
+		Value:    u.Login,
+		Expires:  expiration,
+	}
+	i.SessionsCounter++
+	i.Sessions[u.Login] = u
+	http.SetCookie(w, &cookie)
+
+
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
@@ -104,11 +109,11 @@ func register(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("New user. Private user data: %+v\n", newUser)
 }
 
-func isUserExist(user i.User) bool {
+func getUser(user i.User) (i.User, error) {
 	if u, ok := i.Users[user.Login]; ok {
 		if u.Password == user.Password {
-			return true
+			return u, nil
 		}
 	}
-	return false
+	return user, errors.New("No user")
 }

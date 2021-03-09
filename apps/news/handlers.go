@@ -1,10 +1,10 @@
 package news
 
 import (
-	u "my-motivation/utils"
 	"encoding/json"
 	"fmt"
 	"my-motivation/internal"
+	u "my-motivation/utils"
 	"net/http"
 )
 

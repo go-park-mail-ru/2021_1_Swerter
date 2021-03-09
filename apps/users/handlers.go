@@ -11,6 +11,7 @@ import (
 func userProfile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
+
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusOK)
 		return
@@ -36,7 +37,7 @@ func getUserProfile(w http.ResponseWriter, r *http.Request) {
 
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
-		http.Redirect(w, r, "/", 401)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -45,8 +46,6 @@ func getUserProfile(w http.ResponseWriter, r *http.Request) {
 		userJson, _ := json.Marshal(&user)
 		w.Write(userJson)
 	}
-
-	w.Write([]byte("getUserProfile"))
 }
 
 func updateUserProfile(w http.ResponseWriter, r *http.Request) {
