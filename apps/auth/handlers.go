@@ -38,7 +38,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	expiration := time.Now().Add(10 * time.Hour)
 	cookie := http.Cookie{
 		Name:    "session_id",
-		Value:   utils.GenSession(u.ID),
+		Value:   utils.GenSession(u.ID)+"; SameSite=None; Secure",
 		Expires: expiration,
 	}
 	i.SessionsCounter++
