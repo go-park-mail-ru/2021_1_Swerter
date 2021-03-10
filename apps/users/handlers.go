@@ -71,7 +71,10 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 
 func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
 	utils.SetupCORS(&w)
-	w.Write([]byte("getUserByID" + " " + mux.Vars(r)["userID"]))
+	u := i.Users[i.IDToLogin[mux.Vars(r)["userID"]]]
+	log.Println("get user with id:", mux.Vars(r)["userID"])
+	body, _ := json.Marshal(&u)
+	w.Write(body)
 }
 
 func isSessionExist(session string) bool {
