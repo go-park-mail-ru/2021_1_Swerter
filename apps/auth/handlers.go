@@ -40,7 +40,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		Name:    "session_id",
 		Value:   utils.GenSession(u.ID),
 		Expires: expiration,
-		SameSite: http.SameSiteNoneMode,
+		SameSite: 4,
 		Secure: true,
 	}
 	i.SessionsCounter++
