@@ -10,17 +10,16 @@ import (
 )
 
 func userProfile(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	utils.SetupCORS(&w)
 
 	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if r.Method == http.MethodGet {
 		getUserProfile(w, r)
 	}
+
 	if r.Method == http.MethodPost {
 		updateUserProfile(w, r)
 	}
@@ -28,7 +27,6 @@ func userProfile(w http.ResponseWriter, r *http.Request) {
 
 
 func getUserProfile(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
 	utils.SetupCORS(&w)
 
 	session, err := r.Cookie("session_id")
@@ -48,7 +46,6 @@ func getUserProfile(w http.ResponseWriter, r *http.Request) {
 
 func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	utils.SetupCORS(&w)
 
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
