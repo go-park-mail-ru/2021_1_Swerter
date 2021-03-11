@@ -4,19 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	i "my-motivation/internal"
 	"my-motivation/utils"
 	"net/http"
 	"time"
-	"log"
 )
-
-var registerSuccess string = `"status":"true"`
-var registerFail string = `"status":"false"`
-var loginSuccess string = `{"status":"true"}`
-var loginFail string = `{"status":"false"}`
-var logoutSuccess string = `{"status":"true"}`
-var inProfile string = `{"Auth":"success"}`
 
 func login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -34,8 +27,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 	user := i.User{}
 	decoder.Decode(&user)
 
-	u, err := getUser(user);
-	if err!=nil {
+	u, err := getUser(user)
+	if err != nil {
 		log.Printf("User login failed: %+v\n", user)
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -44,15 +37,15 @@ func login(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User login success: %+v\n", u)
 	expiration := time.Now().Add(10 * time.Hour)
 	cookie := http.Cookie{
-		Name:     "session_id",
-		Value:    u.Login,
-		Expires:  expiration,
+		Name:    "session_id",
+		Value:   utils.GenSession(u.ID),
+		Expires: expiration,
+		SameSite: http.SameSiteNoneMode,
+		Secure: true,
 	}
 	i.SessionsCounter++
-	i.Sessions[u.Login] = u
+	i.Sessions[cookie.Value] = u.ID
 	http.SetCookie(w, &cookie)
-
-
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
@@ -70,21 +63,17 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	log.Println("Logout")
 
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
-	log.Println("Logout")
+	delete(i.Sessions, session.Value)
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	utils.SetupCORS(&w)
 	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	if r.Method == "OPTIONS" {
 		return
 	}
 
@@ -97,23 +86,26 @@ func register(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-
-	i.IDCounter++
-	newUser.ID = "id"+fmt.Sprint(i.IDCounter)
-
-	i.Users[newUser.Login] = newUser
-
-	responseBody := []byte("{\"userID\":"+newUser.ID+"}")
-	w.Write(responseBody)
-
+	storeUser(&newUser)
 	fmt.Printf("New user. Private user data: %+v\n", newUser)
+
+	responseBody := []byte("{\"userID\":" + newUser.ID + "}")
+	w.Write(responseBody)
 }
 
 func getUser(user i.User) (i.User, error) {
 	if u, ok := i.Users[user.Login]; ok {
-		if u.Password == user.Password {
+		if utils.HashPassword(user.Password) == u.Password {
 			return u, nil
 		}
 	}
-	return user, errors.New("No user")
+	return user, errors.New("no user")
+}
+
+func storeUser(u *i.User) {
+	i.IDCounter++
+	u.ID = "id" + fmt.Sprint(i.IDCounter)
+	u.Password = utils.HashPassword(u.Password)
+	i.IDToLogin[u.ID] = u.Login
+	i.Users[u.Login] = *u
 }

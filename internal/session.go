@@ -1,5 +1,5 @@
 package internal
 
-//Key - User.login
-var Sessions map[string]User = map[string]User{}
+// session: user.ID
+var Sessions map[string]string = make(map[string]string)
 var SessionsCounter int
