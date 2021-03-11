@@ -40,12 +40,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 		Name:    "session_id",
 		Value:   utils.GenSession(u.ID),
 		Expires: expiration,
-		SameSite: http.SameSiteNoneMode,
-		Secure: true,
+		//SameSite: http.SameSiteNoneMode,
+		//Secure: true,
 	}
 	i.SessionsCounter++
 	i.Sessions[cookie.Value] = u.ID
 	http.SetCookie(w, &cookie)
+	w.WriteHeader(http.StatusOK)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +80,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
+	newUser.Posts = make(map[string]*i.Post)
 	decoder.Decode(&newUser)
 
 	if _, ok := i.Users[newUser.Login]; ok {
