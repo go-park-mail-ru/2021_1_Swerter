@@ -2,11 +2,14 @@ package users
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"io"
 	"log"
 	i "my-motivation/internal"
 	"my-motivation/utils"
 	"net/http"
+	"os"
 )
 
 func userProfile(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +27,23 @@ func userProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		updateUserProfile(w, r)
 	}
+}
+
+func UploadFile(w http.ResponseWriter, r *http.Request)  {
+	utils.SetupCORS(&w)
+	file, handler, err := r.FormFile("avatar")
+	fmt.Println(handler.Header, err)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	f, err := os.OpenFile("./internal/usersAvatar/" + handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	_, _ = io.Copy(f, file)
+	w.WriteHeader(http.StatusOK)
 }
 
 

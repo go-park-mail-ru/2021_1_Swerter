@@ -1,11 +1,10 @@
 package apps
 
 import (
+	"github.com/gorilla/mux"
 	"my-motivation/apps/auth"
 	"my-motivation/apps/news"
 	"my-motivation/apps/users"
-
-	"github.com/gorilla/mux"
 )
 
 func SetupRouterMain(mainRouter *mux.Router) {
@@ -17,4 +16,5 @@ func SetupRouterMain(mainRouter *mux.Router) {
 
 	postsRouter := mainRouter.PathPrefix("/posts").Subrouter()
 	news.SetupRouterPosts(postsRouter)
+
 }
