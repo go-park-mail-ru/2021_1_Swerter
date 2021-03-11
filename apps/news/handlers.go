@@ -11,6 +11,10 @@ import (
 
 func allPosts(w http.ResponseWriter, r *http.Request) {
 	u.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	user := u.SessionToUser(r)
 	if user == nil {
@@ -27,6 +31,10 @@ func allPosts(w http.ResponseWriter, r *http.Request) {
 
 func addPost(w http.ResponseWriter, r *http.Request) {
 	u.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	user := u.SessionToUser(r)
 	if user == nil {
@@ -34,7 +42,6 @@ func addPost(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-
 	storePost(user, r)
 	w.WriteHeader(http.StatusOK)
 }
@@ -48,4 +55,6 @@ func storePost(user *i.User, r *http.Request) {
 	newPost.Id = i.PostCounter
 	i.Posts[i.PostCounter] = newPost
 	user.Posts = append(user.Posts, newPost.Id)
+
+	fmt.Printf("New post. Post data: %+v\n", newPost)
 }

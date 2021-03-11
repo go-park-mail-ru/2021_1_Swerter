@@ -86,6 +86,8 @@ func updateUser(newUser *i.User, oldUser *i.User) {
 		newUser.LastName = oldUser.LastName
 	}
 
+	newUser.Posts = oldUser.Posts
+
 	delete(i.Users, oldUser.Login)
 	i.Users[newUser.Login] = *newUser
 }

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	i "my-motivation/internal"
 	"net/http"
 )
@@ -8,6 +9,7 @@ import (
 func SessionToUser(r *http.Request) *i.User {
 	session, err := r.Cookie("session_id")
 	if err == http.ErrNoCookie {
+		fmt.Println("no cookie")
 		return nil
 	}
 
@@ -16,7 +18,7 @@ func SessionToUser(r *http.Request) *i.User {
 		user := i.Users[i.IDToLogin[userID]]
 		return &user
 	}
-
+	fmt.Println("no seesiom")
 	return nil
 }
 
