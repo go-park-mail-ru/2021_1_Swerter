@@ -80,7 +80,6 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
-	newUser.Posts = make(map[string]*i.Post)
 	decoder.Decode(&newUser)
 
 	if _, ok := i.Users[newUser.Login]; ok {

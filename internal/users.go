@@ -12,5 +12,5 @@ type User struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Password  string `json:"-"`
-	Posts     map[string]*Post
+	Posts     []int
 }
