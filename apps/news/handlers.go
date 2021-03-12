@@ -54,9 +54,6 @@ func storePost(user *i.User, r *http.Request) {
 	newPost.AuthorId = user.ID
 	newPost.Id = i.PostCounter
 	i.Posts[i.PostCounter] = newPost
-	newPosts := append(i.Users[i.IDToLogin[user.ID]].Posts, newPost.Id)
-	oldUser := i.Users[i.IDToLogin[user.ID]]
-	oldUser.Posts = newPosts
-	i.Users[i.IDToLogin[user.ID]] = oldUser
+	i.Users[i.IDToLogin[user.ID]].Posts[newPost.Id] = newPost
 	fmt.Printf("New post. Post data: %+v\n", newPost)
 }

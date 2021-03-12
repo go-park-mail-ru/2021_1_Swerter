@@ -107,6 +107,7 @@ func storeUser(u *i.User) {
 	i.IDCounter++
 	u.ID = "id" + fmt.Sprint(i.IDCounter)
 	u.Password = utils.HashPassword(u.Password)
+	u.Posts = make(map[int]i.Post)
 	i.IDToLogin[u.ID] = u.Login
 	i.Users[u.Login] = *u
 }
