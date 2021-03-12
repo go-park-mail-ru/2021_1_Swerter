@@ -1,23 +1,12 @@
 package internal
 
-type Post struct {
-	Id         int `json:"id"`
-	AuthorName string
-	Text       string
-	UrlImg     string
-}
-
-func NewPost(id int, authorName string, text string, urlImg string) Post {
-	return Post{
-		Id: id,
-		AuthorName: authorName,
-		Text: text,
-		UrlImg: urlImg,
-	}
-}
-
+var PostCounter int = 0
 var Posts = make(map[int]Post)
 
-
-
-
+type Post struct {
+	Id         int	  `json:"postCreator"`
+	AuthorId   string
+	AuthorName string `json:"postCreator"`
+	Text       string `json:"textPost"`
+	UrlImg     string `json:"imgContent"`
+}

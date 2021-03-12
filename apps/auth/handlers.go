@@ -40,12 +40,13 @@ func login(w http.ResponseWriter, r *http.Request) {
 		Name:    "session_id",
 		Value:   utils.GenSession(u.ID),
 		Expires: expiration,
-		SameSite: http.SameSiteNoneMode,
-		Secure: true,
+		//SameSite: http.SameSiteNoneMode,
+		//Secure: true,
 	}
 	i.SessionsCounter++
 	i.Sessions[cookie.Value] = u.ID
 	http.SetCookie(w, &cookie)
+	w.WriteHeader(http.StatusOK)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
@@ -106,6 +107,7 @@ func storeUser(u *i.User) {
 	i.IDCounter++
 	u.ID = "id" + fmt.Sprint(i.IDCounter)
 	u.Password = utils.HashPassword(u.Password)
+	u.Posts = make(map[int]i.Post)
 	i.IDToLogin[u.ID] = u.Login
 	i.Users[u.Login] = *u
 }
