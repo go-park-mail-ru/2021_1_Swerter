@@ -37,7 +37,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	user := utils.SessionToUser(r)
-	user.Avatar = utils.HashPassword(user.Login)
+	user.Avatar = utils.HashPassword(user.Login) //?))
 	i.Users[user.Login] = *user
 
 	defer file.Close()
