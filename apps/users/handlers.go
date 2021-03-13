@@ -2,11 +2,14 @@ package users
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
+	"io"
 	"log"
 	i "my-motivation/internal"
 	"my-motivation/utils"
 	"net/http"
+	"os"
 )
 
 func userProfile(w http.ResponseWriter, r *http.Request) {
@@ -25,49 +28,58 @@ func userProfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func UploadFile(w http.ResponseWriter, r *http.Request)  {
+	utils.SetupCORS(&w)
+	file, handler, err := r.FormFile("avatar")
+	fmt.Println(handler.Header, err)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	user := utils.SessionToUser(r)
+	user.Avatar = utils.HashPassword(user.Login)
+	i.Users[user.Login] = *user
+
+	defer file.Close()
+	f, err := os.OpenFile("./static/usersAvatar/" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	_, _ = io.Copy(f, file)
+	w.WriteHeader(http.StatusOK)
+}
+
 
 func getUserProfile(w http.ResponseWriter, r *http.Request) {
 	utils.SetupCORS(&w)
-
-	session, err := r.Cookie("session_id")
-	if err == http.ErrNoCookie {
+	user := utils.SessionToUser(r)
+	if user == nil {
 		w.WriteHeader(http.StatusForbidden)
-		return
 	}
+	userJson, _ := json.Marshal(user)
+	w.Write(userJson)
 
-	if isSessionExist(session.Value) {
-		userID := i.Sessions[session.Value]
-		user := i.Users[i.IDToLogin[userID]]
-
-		userJson, _ := json.Marshal(&user)
-		w.Write(userJson)
-	}
 }
 
 func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	session, err := r.Cookie("session_id")
-	if err == http.ErrNoCookie {
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
 	decoder := json.NewDecoder(r.Body)
 	newUser := i.User{}
 	decoder.Decode(&newUser)
 
-	if isSessionExist(session.Value) {
-		userID := i.Sessions[session.Value]
-		oldUser := i.Users[i.IDToLogin[userID]]
-		updateUser(&newUser, &oldUser)
-
-		log.Printf("User update success: %+v\n", newUser)
+	oldUser := utils.SessionToUser(r)
+	if oldUser == nil {
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	w.WriteHeader(http.StatusMethodNotAllowed)
+	updateUser(&newUser, oldUser)
+	log.Printf("User update success: %+v\n", newUser)
+	return
 }
+
 
 func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
 	utils.SetupCORS(&w)
@@ -75,13 +87,6 @@ func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
 	log.Println("get user with id:", mux.Vars(r)["userID"])
 	body, _ := json.Marshal(&u)
 	w.Write(body)
-}
-
-func isSessionExist(session string) bool {
-	if _, ok := i.Sessions[session]; ok {
-		return true
-	}
-	return false
 }
 
 func updateUser(newUser *i.User, oldUser *i.User) {
@@ -107,7 +112,8 @@ func updateUser(newUser *i.User, oldUser *i.User) {
 		newUser.LastName = oldUser.LastName
 	}
 
+	newUser.Posts = oldUser.Posts
+
 	delete(i.Users, oldUser.Login)
 	i.Users[newUser.Login] = *newUser
 }
-
