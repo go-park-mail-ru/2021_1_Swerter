@@ -34,6 +34,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	fmt.Println(handler.Header, err)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	user := utils.SessionToUser(r)
@@ -44,6 +45,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	f, err := os.OpenFile("./static/usersAvatar/" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	defer f.Close()
