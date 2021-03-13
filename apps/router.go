@@ -5,6 +5,7 @@ import (
 	"my-motivation/apps/auth"
 	"my-motivation/apps/news"
 	"my-motivation/apps/users"
+	"net/http"
 )
 
 func SetupRouterMain(mainRouter *mux.Router) {
@@ -17,4 +18,5 @@ func SetupRouterMain(mainRouter *mux.Router) {
 	postsRouter := mainRouter.PathPrefix("/posts").Subrouter()
 	news.SetupRouterPosts(postsRouter)
 
+	mainRouter.PathPrefix("/static/" ).Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 }

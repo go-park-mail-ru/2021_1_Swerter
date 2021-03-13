@@ -35,8 +35,13 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	user := utils.SessionToUser(r)
+	user.Avatar = utils.HashPassword(user.Login)
+	i.Users[user.Login] = *user
+
 	defer file.Close()
-	f, err := os.OpenFile("./internal/usersAvatar/" + handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("./static/usersAvatar/" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		panic(err)
 	}

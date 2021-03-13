@@ -13,4 +13,5 @@ type User struct {
 	LastName  string       `json:"lastName"`
 	Password  string       `json:"-"`
 	Posts     map[int]Post `json:"postsData"`
+	Avatar    string       `json:"avatar"`
 }
