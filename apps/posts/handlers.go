@@ -25,8 +25,14 @@ func allPosts(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-
-	jsonValue, _ := json.Marshal(i.Posts)
+	curPosts := make(map[int]i.Post)
+	for k, v := range i.Posts{
+		u := i.Users[i.IDToLogin[v.AuthorId]]
+		v.Author = u.FirstName + " " + u.LastName
+		v.AuthorAva = u.Avatar
+		curPosts[k] = v
+	}
+	jsonValue, _ := json.Marshal(curPosts)
 	fmt.Println(jsonValue)
 	w.Write([]byte(jsonValue))
 	w.WriteHeader(http.StatusOK)
@@ -62,11 +68,10 @@ func storePost(user *i.User, r *http.Request) {
 	fmt.Printf("New post. Post data: %+v\n", newPost)
 }
 
-func storeImg(r *http.Request, post *i.Post) string {
+func storeImg(r *http.Request, post *i.Post) {
 	imgContent, handler, err := r.FormFile("imgContent")
 	if err != nil {
 		fmt.Printf("No post img content\n")
-		return ""
 	}
 
 	t := time.Now()
@@ -78,10 +83,9 @@ func storeImg(r *http.Request, post *i.Post) string {
 	post.UrlImg = "/static/posts/" + fileName
 	if err != nil {
 		fmt.Printf("Cant create file\n")
-		return ""
 	}
+
 	defer localImg.Close()
 	_, _ = io.Copy(localImg, imgContent)
 	fmt.Printf("Load new file\n")
-	return  fileName
 }
