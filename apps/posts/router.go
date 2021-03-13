@@ -1,4 +1,4 @@
-package news
+package posts
 
 import (
 	"github.com/gorilla/mux"
