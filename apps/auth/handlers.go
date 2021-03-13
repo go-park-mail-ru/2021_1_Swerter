@@ -96,7 +96,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 func getUser(user i.User) (i.User, error) {
 	if u, ok := i.Users[user.Login]; ok {
-		if utils.HashPassword(user.Password) == u.Password {
+		if utils.Hash(user.Password) == u.Password {
 			return u, nil
 		}
 	}
@@ -106,7 +106,7 @@ func getUser(user i.User) (i.User, error) {
 func storeUser(u *i.User) {
 	i.IDCounter++
 	u.ID = "id" + fmt.Sprint(i.IDCounter)
-	u.Password = utils.HashPassword(u.Password)
+	u.Password = utils.Hash(u.Password)
 	u.Posts = make(map[int]i.Post)
 	i.IDToLogin[u.ID] = u.Login
 	i.Users[u.Login] = *u

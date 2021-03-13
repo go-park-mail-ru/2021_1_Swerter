@@ -37,7 +37,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	user := utils.SessionToUser(r)
-	user.Avatar = utils.HashPassword(user.Login)
+	user.Avatar = utils.Hash(user.Login)
 	i.Users[user.Login] = *user
 
 	defer file.Close()
@@ -101,7 +101,7 @@ func updateUser(newUser *i.User, oldUser *i.User) {
 	if newUser.Password == "" {
 		newUser.Password = oldUser.Password
 	} else {
-		newUser.Password = utils.HashPassword(newUser.Password)
+		newUser.Password = utils.Hash(newUser.Password)
 	}
 
 	if newUser.FirstName == "" {
