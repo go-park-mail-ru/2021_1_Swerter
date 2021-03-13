@@ -71,7 +71,7 @@ func storeImg(r *http.Request, post *i.Post) string {
 
 	t := time.Now()
 	salt := fmt.Sprintf(t.Format(time.RFC3339))
-	fileName := u.HashPassword(handler.Filename + salt)
+	fileName := u.Hash(handler.Filename + salt)
 
 	defer imgContent.Close()
 	localImg, err := os.OpenFile("./static/posts/" + fileName, os.O_WRONLY|os.O_CREATE, 0666)
