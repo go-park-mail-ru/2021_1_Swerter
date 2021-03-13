@@ -43,8 +43,9 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	defer file.Close()
 	f, err := os.OpenFile("./static/usersAvatar/" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
+
 	defer f.Close()
 	_, _ = io.Copy(f, file)
 	w.WriteHeader(http.StatusOK)

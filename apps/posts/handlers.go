@@ -62,11 +62,10 @@ func storePost(user *i.User, r *http.Request) {
 	fmt.Printf("New post. Post data: %+v\n", newPost)
 }
 
-func storeImg(r *http.Request, post *i.Post) string {
+func storeImg(r *http.Request, post *i.Post) {
 	imgContent, handler, err := r.FormFile("imgContent")
 	if err != nil {
 		fmt.Printf("No post img content\n")
-		return ""
 	}
 
 	t := time.Now()
@@ -78,10 +77,9 @@ func storeImg(r *http.Request, post *i.Post) string {
 	post.UrlImg = "/static/posts/" + fileName
 	if err != nil {
 		fmt.Printf("Cant create file\n")
-		return ""
 	}
+
 	defer localImg.Close()
 	_, _ = io.Copy(localImg, imgContent)
 	fmt.Printf("Load new file\n")
-	return  fileName
 }
