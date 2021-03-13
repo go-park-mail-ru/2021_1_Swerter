@@ -25,8 +25,14 @@ func allPosts(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-
-	jsonValue, _ := json.Marshal(i.Posts)
+	curPosts := make(map[int]i.Post)
+	for k, v := range i.Posts{
+		u := i.Users[i.IDToLogin[v.AuthorId]]
+		v.Author = u.FirstName + " " + u.LastName
+		v.AuthorAva = u.Avatar
+		curPosts[k] = v
+	}
+	jsonValue, _ := json.Marshal(curPosts)
 	fmt.Println(jsonValue)
 	w.Write([]byte(jsonValue))
 	w.WriteHeader(http.StatusOK)

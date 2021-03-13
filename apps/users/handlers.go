@@ -113,7 +113,7 @@ func updateUser(newUser *i.User, oldUser *i.User) {
 	}
 
 	newUser.Posts = oldUser.Posts
-
+	newUser.Avatar = oldUser.Avatar
 	delete(i.Users, oldUser.Login)
 	i.Users[newUser.Login] = *newUser
 }
