@@ -13,7 +13,7 @@ func GenSession(id string) (session string) {
 	return
 }
 
-func HashPassword(password string) string {
+func Hash(password string) string {
 	hash := sha256.Sum256([]byte(password + i.Salt))
 	return fmt.Sprintf("%x", hash)
 }
