@@ -79,38 +79,9 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updateUser(&newUser, oldUser)
+	i.UpdateUser(&newUser, oldUser)
 	log.Printf("User update success: %+v\n", newUser)
 	return
-}
-
-func updateUser(newUser *i.User, oldUser *i.User) {
-	newUser.ID = oldUser.ID
-
-	if newUser.Login == "" {
-		newUser.Login = oldUser.Login
-	} else {
-		i.IDToLogin[newUser.ID] = newUser.Login
-	}
-
-	if newUser.Password == "" {
-		newUser.Password = oldUser.Password
-	} else {
-		newUser.Password = utils.Hash(newUser.Password)
-	}
-
-	if newUser.FirstName == "" {
-		newUser.FirstName = oldUser.FirstName
-	}
-
-	if newUser.LastName == "" {
-		newUser.LastName = oldUser.LastName
-	}
-
-	newUser.Posts = oldUser.Posts
-	newUser.Avatar = oldUser.Avatar
-	delete(i.Users, oldUser.Login)
-	i.Users[newUser.Login] = *newUser
 }
 
 func getUserProfileByID(w http.ResponseWriter, r *http.Request) {

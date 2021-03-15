@@ -1,5 +1,10 @@
 package internal
 
+import (
+	"crypto/sha256"
+	"fmt"
+)
+
 var IDToLogin = make(map[string]string)
 
 //Login: User
@@ -14,4 +19,40 @@ type User struct {
 	Password  string       `json:"-"`
 	Posts     map[int]Post `json:"postsData"`
 	Avatar    string       `json:"avatar"`
+}
+
+func UpdateUser(newUser *User, oldUser *User) {
+	newUser.ID = oldUser.ID
+
+	if newUser.Login == "" {
+		newUser.Login = oldUser.Login
+	} else {
+		IDToLogin[newUser.ID] = newUser.Login
+	}
+
+	if newUser.Password == "" {
+		newUser.Password = oldUser.Password
+	} else {
+		newUser.Password = HashPassword(newUser.Password)
+	}
+
+	if newUser.FirstName == "" {
+		newUser.FirstName = oldUser.FirstName
+	}
+
+	if newUser.LastName == "" {
+		newUser.LastName = oldUser.LastName
+	}
+
+	newUser.Posts = oldUser.Posts
+	newUser.Avatar = oldUser.Avatar
+	delete(Users, oldUser.Login)
+	Users[newUser.Login] = *newUser
+}
+
+
+func HashPassword(password string) string {
+	var salt = "super_secure_key"
+	hash := sha256.Sum256([]byte(password + salt))
+	return fmt.Sprintf("%x", hash)
 }
