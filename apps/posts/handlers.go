@@ -13,12 +13,6 @@ import (
 )
 
 func allPosts(w http.ResponseWriter, r *http.Request) {
-	u.SetupCORS(&w)
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	user := u.SessionToUser(r)
 	if user == nil {
 		log.Println("Need auth")
@@ -26,7 +20,7 @@ func allPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	curPosts := make(map[int]i.Post)
-	for k, v := range i.Posts{
+	for k, v := range i.Posts {
 		u := i.Users[i.IDToLogin[v.AuthorId]]
 		v.Author = u.FirstName + " " + u.LastName
 		v.AuthorAva = u.Avatar
@@ -39,12 +33,6 @@ func allPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func addPost(w http.ResponseWriter, r *http.Request) {
-	u.SetupCORS(&w)
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	user := u.SessionToUser(r)
 	if user == nil {
 		log.Println("Add post failed")
@@ -80,7 +68,7 @@ func storeImg(r *http.Request, post *i.Post) {
 	fileName := u.Hash(handler.Filename + salt)
 
 	defer imgContent.Close()
-	localImg, err := os.OpenFile("./static/posts/" + fileName, os.O_WRONLY|os.O_CREATE, 0666)
+	localImg, err := os.OpenFile("./static/posts/"+fileName, os.O_WRONLY|os.O_CREATE, 0666)
 	post.UrlImg = "/static/posts/" + fileName
 	if err != nil {
 		fmt.Printf("Cant create file\n")

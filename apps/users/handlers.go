@@ -13,8 +13,6 @@ import (
 )
 
 func userProfile(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
-
 	if r.Method == http.MethodOptions {
 		return
 	}
@@ -29,7 +27,11 @@ func userProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func UploadFile(w http.ResponseWriter, r *http.Request)  {
-	utils.SetupCORS(&w)
+
+	if r.Method == http.MethodOptions {
+		return
+	}
+
 	file, handler, err := r.FormFile("avatar")
 	fmt.Println(handler.Header, err)
 	if err != nil {
@@ -55,7 +57,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 
 
 func getUserProfile(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
 	user := utils.SessionToUser(r)
 	if user == nil {
 		w.WriteHeader(http.StatusForbidden)
@@ -81,15 +82,6 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 	updateUser(&newUser, oldUser)
 	log.Printf("User update success: %+v\n", newUser)
 	return
-}
-
-
-func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
-	u := i.Users[i.IDToLogin[mux.Vars(r)["userID"]]]
-	log.Println("get user with id:", mux.Vars(r)["userID"])
-	body, _ := json.Marshal(&u)
-	w.Write(body)
 }
 
 func updateUser(newUser *i.User, oldUser *i.User) {
@@ -119,4 +111,15 @@ func updateUser(newUser *i.User, oldUser *i.User) {
 	newUser.Avatar = oldUser.Avatar
 	delete(i.Users, oldUser.Login)
 	i.Users[newUser.Login] = *newUser
+}
+
+func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	u := i.Users[i.IDToLogin[mux.Vars(r)["userID"]]]
+	log.Println("get user with id:", mux.Vars(r)["userID"])
+	body, _ := json.Marshal(&u)
+	w.Write(body)
 }
