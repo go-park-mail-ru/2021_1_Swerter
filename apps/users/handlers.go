@@ -26,7 +26,7 @@ func userProfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UploadFile(w http.ResponseWriter, r *http.Request)  {
+func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodOptions {
 		return
@@ -44,7 +44,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	i.Users[user.Login] = *user
 
 	defer file.Close()
-	f, err := os.OpenFile("./static/usersAvatar/" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("./static/usersAvatar/"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -54,7 +54,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	_, _ = io.Copy(f, file)
 	w.WriteHeader(http.StatusOK)
 }
-
 
 func getUserProfile(w http.ResponseWriter, r *http.Request) {
 	user := utils.SessionToUser(r)
@@ -79,7 +78,19 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if newUser.Password == "" {
+		fmt.Println("la")
+		newUser.Password = oldUser.Password
+	} else {
+		if oldUser.Password != i.HashPassword(newUser.OldPassword) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		newUser.Password = i.HashPassword(newUser.Password)
+	}
+
 	i.UpdateUser(&newUser, oldUser)
+	w.WriteHeader(http.StatusOK)
 	log.Printf("User update success: %+v\n", newUser)
 	return
 }

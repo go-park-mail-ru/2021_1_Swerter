@@ -12,13 +12,14 @@ var Users = map[string]User{}
 var IDCounter int
 
 type User struct {
-	ID        string       `json:"userId"`
-	Login     string       `json:"login"`
-	FirstName string       `json:"firstName"`
-	LastName  string       `json:"lastName"`
-	Password  string       `json:"-"`
-	Posts     map[int]Post `json:"postsData"`
-	Avatar    string       `json:"avatar"`
+	ID          string       `json:"userId"`
+	Login       string       `json:"login"`
+	FirstName   string       `json:"firstName"`
+	LastName    string       `json:"lastName"`
+	OldPassword string       `json:"oldPassword"`
+	Password    string       `json:"password"`
+	Posts       map[int]Post `json:"postsData"`
+	Avatar      string       `json:"avatar"`
 }
 
 func UpdateUser(newUser *User, oldUser *User) {
@@ -28,12 +29,6 @@ func UpdateUser(newUser *User, oldUser *User) {
 		newUser.Login = oldUser.Login
 	} else {
 		IDToLogin[newUser.ID] = newUser.Login
-	}
-
-	if newUser.Password == "" {
-		newUser.Password = oldUser.Password
-	} else {
-		newUser.Password = HashPassword(newUser.Password)
 	}
 
 	if newUser.FirstName == "" {
@@ -49,7 +44,6 @@ func UpdateUser(newUser *User, oldUser *User) {
 	delete(Users, oldUser.Login)
 	Users[newUser.Login] = *newUser
 }
-
 
 func HashPassword(password string) string {
 	var salt = "super_secure_key"
