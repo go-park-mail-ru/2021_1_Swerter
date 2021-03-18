@@ -1,7 +1,10 @@
 package index
 
-import "github.com/gorilla/mux"
+import (
+	"github.com/gorilla/mux"
+	m "my-motivation/apps/middleware"
+)
 
 func SetupRouterIndex(r *mux.Router) {
-	r.HandleFunc("/", index)
+	r.HandleFunc("/", m.CORS(index))
 }

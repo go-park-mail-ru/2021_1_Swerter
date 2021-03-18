@@ -2,10 +2,11 @@ package users
 
 import (
 	"github.com/gorilla/mux"
+	m "my-motivation/apps/middleware"
 )
 
 func SetupRouterUsers(r *mux.Router) {
-	r.HandleFunc("/loadImg",UploadFile).Methods("POST")
-	r.HandleFunc("", userProfile).Methods("GET", "POST", "OPTIONS")
-	r.HandleFunc("/{userID}", getUserProfileByID).Methods("GET", "OPTIONS")
+	r.HandleFunc("/loadImg", m.CORS(UploadFile)).Methods("POST")
+	r.HandleFunc("", m.CORS(userProfile)).Methods("GET", "POST", "OPTIONS")
+	r.HandleFunc("/{userID}", m.CORS(getUserProfileByID)).Methods("GET", "OPTIONS")
 }

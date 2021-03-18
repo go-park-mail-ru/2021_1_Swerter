@@ -3,7 +3,6 @@ package utils
 import (
 	"crypto/sha256"
 	"fmt"
-	i "my-motivation/internal"
 	"time"
 )
 
@@ -14,7 +13,7 @@ func GenSession(id string) (session string) {
 }
 
 func Hash(password string) string {
-	hash := sha256.Sum256([]byte(password + i.Salt))
+	hash := sha256.Sum256([]byte(password + Salt))
 	return fmt.Sprintf("%x", hash)
 }
 

@@ -13,8 +13,6 @@ import (
 )
 
 func userProfile(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
-
 	if r.Method == http.MethodOptions {
 		return
 	}
@@ -28,12 +26,17 @@ func userProfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UploadFile(w http.ResponseWriter, r *http.Request)  {
-	utils.SetupCORS(&w)
+func UploadFile(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method == http.MethodOptions {
+		return
+	}
+
 	file, handler, err := r.FormFile("avatar")
 	fmt.Println(handler.Header, err)
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
 
 	user := utils.SessionToUser(r)
@@ -41,18 +44,18 @@ func UploadFile(w http.ResponseWriter, r *http.Request)  {
 	i.Users[user.Login] = *user
 
 	defer file.Close()
-	f, err := os.OpenFile("./static/usersAvatar/" + user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("./static/usersAvatar/"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		return
 	}
+
 	defer f.Close()
 	_, _ = io.Copy(f, file)
 	w.WriteHeader(http.StatusOK)
 }
 
-
 func getUserProfile(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
 	user := utils.SessionToUser(r)
 	if user == nil {
 		w.WriteHeader(http.StatusForbidden)
@@ -75,45 +78,30 @@ func updateUserProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updateUser(&newUser, oldUser)
+	if newUser.Password == "" {
+		fmt.Println("la")
+		newUser.Password = oldUser.Password
+	} else {
+		if oldUser.Password != i.HashPassword(newUser.OldPassword) {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		newUser.Password = i.HashPassword(newUser.Password)
+	}
+
+	i.UpdateUser(&newUser, oldUser)
+	w.WriteHeader(http.StatusOK)
 	log.Printf("User update success: %+v\n", newUser)
 	return
 }
 
-
 func getUserProfileByID(w http.ResponseWriter, r *http.Request) {
-	utils.SetupCORS(&w)
+	if r.Method == http.MethodOptions {
+		return
+	}
+
 	u := i.Users[i.IDToLogin[mux.Vars(r)["userID"]]]
 	log.Println("get user with id:", mux.Vars(r)["userID"])
 	body, _ := json.Marshal(&u)
 	w.Write(body)
-}
-
-func updateUser(newUser *i.User, oldUser *i.User) {
-	newUser.ID = oldUser.ID
-
-	if newUser.Login == "" {
-		newUser.Login = oldUser.Login
-	} else {
-		i.IDToLogin[newUser.ID] = newUser.Login
-	}
-
-	if newUser.Password == "" {
-		newUser.Password = oldUser.Password
-	} else {
-		newUser.Password = utils.Hash(newUser.Password)
-	}
-
-	if newUser.FirstName == "" {
-		newUser.FirstName = oldUser.FirstName
-	}
-
-	if newUser.LastName == "" {
-		newUser.LastName = oldUser.LastName
-	}
-
-	newUser.Posts = oldUser.Posts
-
-	delete(i.Users, oldUser.Login)
-	i.Users[newUser.Login] = *newUser
 }
