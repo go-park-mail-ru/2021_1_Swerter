@@ -58,7 +58,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 func getUserProfile(w http.ResponseWriter, r *http.Request) {
 	user := utils.SessionToUser(r)
 	if user == nil {
-		w.WriteHeader(http.StatusForbidden)
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 	userJson, _ := json.Marshal(user)
 	w.Write(userJson)
