@@ -38,7 +38,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 		return
 	}
-
+	//user -> userId
 	user := utils.SessionToUser(r)
 	user.Avatar = utils.Hash(user.Login)
 	i.Users[user.Login] = *user

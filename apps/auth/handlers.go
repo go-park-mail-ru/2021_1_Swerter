@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	i "my-motivation/internal"
+	//model "my-motivation/internal/pkg/models"
+	//session "my-motivation/internal/pkg/session/repository"
 	"my-motivation/utils"
 	"net/http"
 	"time"
@@ -27,8 +29,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("User login success: %+v\n", u)
 	expiration := time.Now().Add(10 * time.Hour)
+
 	cookie := http.Cookie{
 		Name:    "session_id",
+		//TODO: Value:  sessionRepo.create(user.id),
 		Value:   utils.GenSession(u.ID),
 		Expires: expiration,
 		//SameSite: http.SameSiteNoneMode,
