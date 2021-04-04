@@ -10,6 +10,7 @@ import (
 	"my-motivation/utils"
 	"net/http"
 	"os"
+	"time"
 )
 
 func userProfile(w http.ResponseWriter, r *http.Request) {
@@ -39,8 +40,11 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	t := time.Now()
+	salt := fmt.Sprintf(t.Format(time.RFC3339))
+
 	user := utils.SessionToUser(r)
-	user.Avatar = utils.Hash(user.Login)
+	user.Avatar = utils.Hash(user.Login + salt)
 	i.Users[user.Login] = *user
 
 	defer file.Close()
