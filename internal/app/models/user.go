@@ -7,14 +7,15 @@ import (
 
 //TODO: validate
 type User struct {
-	ID          string        `json:"userId"`
-	Login       string        `json:"login"`
-	FirstName   string        `json:"firstName"`
-	LastName    string        `json:"lastName"`
-	OldPassword string        `json:"oldPassword"`
-	Password    string        `json:"password"`
-	Posts       map[int]*Post `json:"postsData"`
-	Avatar      string        `json:"avatar"`
+	ID          string           `json:"userId"`
+	Login       string           `json:"login"`
+	FirstName   string           `json:"firstName"`
+	LastName    string           `json:"lastName"`
+	OldPassword string           `json:"oldPassword"`
+	Password    string           `json:"password"`
+	Posts       map[int]*Post    `json:"postsData"`
+	Friends     map[string]*User `json:"friends"`
+	Avatar      string           `json:"avatar"`
 }
 
 type UserUsecase interface {
@@ -26,15 +27,19 @@ type UserUsecase interface {
 	GetUserById(ctx context.Context, id string) (*User, error)
 	UpdateUser(ctx context.Context, newUser *User, session string) error
 	UploadAvatar(c context.Context, sessionId string, file multipart.File) error
+	AddFriend(c context.Context, session string, userFiend *User) error
+	GetFriends(c context.Context, session string) (map[string]*User, error)
 	//Для логина и пароля
 	UpdateSecureUser(ctx context.Context, userId int, login string, pass string, newUser *User) error
 }
 
 type UserRepository interface {
 	SaveUser(ctx context.Context, u *User) error
-	GetUserByLogin(ctx context.Context, login string) (*User, error)
 	GetUserById(ctx context.Context, id string) (*User, error)
-	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
+	GetUserByLogin(ctx context.Context, login string) (*User, error)
+	SaveFriend(ctx context.Context, user *User, userFiend *User) error
 	UpdateUser(ctx context.Context, oldUser *User, newUser *User) error
+	GetFriends(ctx context.Context, user *User) (map[string]*User, error)
 	UploadAvatar(c context.Context, user *User, file multipart.File) error
+	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
 }

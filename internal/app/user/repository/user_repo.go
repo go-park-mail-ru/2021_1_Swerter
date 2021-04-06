@@ -28,6 +28,7 @@ func NewUserRepo() models.UserRepository {
 				FirstName: "Artem",
 				LastName:  "Sudorgin",
 				Posts: make(map[int]*models.Post),
+				Friends : make(map[string]*models.User),
 			},
 		},
 		IDCounter: 2,
@@ -35,6 +36,24 @@ func NewUserRepo() models.UserRepository {
 			"id1" : "AS@com.ru",
 		},
 	}
+}
+
+func (ur *UserRepo) GetFriends(ctx context.Context, user *models.User) (map[string]*models.User, error) {
+	if user == nil {
+		return nil, errors.New("empty pointer to user")
+	}
+
+	users := ur.Users[user.Login].Friends
+	return users, nil
+}
+
+func (ur * UserRepo) SaveFriend(ctx context.Context, user *models.User, userFiend *models.User) error {
+	if user == nil || userFiend == nil {
+		return errors.New("empty pointer to user")
+	}
+
+	ur.Users[user.Login].Friends[userFiend.Login] = userFiend
+	return nil
 }
 
 func (ur *UserRepo) SaveUser(ctx context.Context, u *models.User) error {
@@ -45,6 +64,7 @@ func (ur *UserRepo) SaveUser(ctx context.Context, u *models.User) error {
 	u.ID = "id" + fmt.Sprint(ur.IDCounter)
 	u.Password = hasher.Hash(u.Password)
 	u.Posts = map[int]*models.Post{}
+	u.Friends = map[string]*models.User{}
 
 	ur.IDCounter++
 	ur.Users[u.Login] = u
