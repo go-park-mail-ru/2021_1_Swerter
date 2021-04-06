@@ -10,26 +10,34 @@ import (
 	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
 	_userRepo "my-motivation/internal/app/user/repository"
 	_userUsecase "my-motivation/internal/app/user/usecase"
+	"my-motivation/internal/pkg/utils/logger"
+
+	//"my-motivation/internal/pkg/utils/logger"
 	"net/http"
 	"os"
 	"time"
+	//log "github.com/sirupsen/logrus"
+
 )
 
 func main() {
+	//logger
+	log := logger.NewLogger()
+
 	//repo
 	userRepo := _userRepo.NewUserRepo()
 	postRepo := _postRepo.NewPostRepo(userRepo)
 	sessionManager := session.NewSessionManager()
 
 	//usecase
-	timeoutContext := 5 * time.Second
+	timeoutContext := 2 * time.Second
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, timeoutContext, sessionManager)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager)
 
 	//delivery
 	r := mux.NewRouter()
-	_userHttpDelivery.NewUserHandler(r, userUsecase)
-	_postHttpDelivery.NewPostHandler(r, postUsecase)
+	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
+	_postHttpDelivery.NewPostHandler(r, postUsecase, log)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
 
 	//index
@@ -39,11 +47,13 @@ func main() {
 
 	//middleware
 	handler := middleware.CORS(r)
+	handler = middleware.LoggingMiddleware(handler, log)
 
 	server := http.Server{
 		Addr:    ":" + os.Getenv("PORT"),
 		Handler: handler,
 	}
 
+	log.Log.Infof("Server start at %s port", server.Addr)
 	server.ListenAndServe()
 }

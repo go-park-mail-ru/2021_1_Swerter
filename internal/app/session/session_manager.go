@@ -2,6 +2,7 @@ package session
 
 import (
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"my-motivation/internal/app/models"
 	"sync"
@@ -39,7 +40,7 @@ func (sm *SessionsManager) Create(userID string) (*models.Session, error) {
 func (sm *SessionsManager) GetUserId(sessionValue string) (userId string, err error){
 	session, ok := sm.sessions[sessionValue]
 	if !ok || session == nil {
-		return "", fmt.Errorf("no session")
+		return "", errors.New("no session")
 	}
 	return session.UserID, nil
 }

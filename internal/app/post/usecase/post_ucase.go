@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"log"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/app/session"
@@ -36,7 +35,6 @@ func (pu *PostUsecase) SavePost(c context.Context, session string, imgFile multi
 
 	userOwner, err :=pu.UserRepo.GetUserById(ctx, userId)
 	if err != nil || userOwner == nil {
-		log.Println("Add post failed")
 		return err
 	}
 

@@ -5,10 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
-	"my-motivation/internal/pkg/utils"
+	"my-motivation/internal/pkg/utils/hasher"
 	"os"
 )
 
@@ -39,12 +38,11 @@ func NewUserRepo() models.UserRepository {
 
 func (ur *UserRepo) SaveUser(ctx context.Context, u *models.User) error {
 	if _, ok := ur.Users[u.Login]; ok {
-		log.Println("User already exists on register")
-		return fmt.Errorf("user %s was exist", u.Login)
+		return errors.New(fmt.Sprintf("user %s was exist", u.Login))
 	}
 
 	u.ID = "id" + fmt.Sprint(ur.IDCounter)
-	u.Password = utils.Hash(u.Password)
+	u.Password = hasher.Hash(u.Password)
 	u.Posts = map[int]*models.Post{}
 
 	ur.IDCounter++
@@ -62,7 +60,7 @@ func (ur *UserRepo) GetUserByLogin(ctx context.Context, login string) (*models.U
 func (ur *UserRepo) GetUserById(ctx context.Context, id string) (*models.User, error) {
 	user, ok := ur.Users[ur.IDToLogin[id]]
 	if !ok {
-		return nil, fmt.Errorf("no such user")
+		return nil, errors.New("no such user")
 	}
 	return user, nil
 }
@@ -70,7 +68,7 @@ func (ur *UserRepo) GetUserById(ctx context.Context, id string) (*models.User, e
 
 func (ur *UserRepo) GetPrivateUser(ctx context.Context, login string, password string) (*models.User, error) {
 	if u, ok := ur.Users[login]; ok {
-		if utils.Hash(password) == u.Password {
+		if hasher.Hash(password) == u.Password {
 			return u, nil
 		}
 	}
@@ -79,13 +77,12 @@ func (ur *UserRepo) GetPrivateUser(ctx context.Context, login string, password s
 
 func (ur *UserRepo) UpdateUser(ctx context.Context, oldUser *models.User, newUser *models.User) error {
 	if newUser.Password == "" {
-		fmt.Println("la")
 		newUser.Password = oldUser.Password
 	} else {
-		if oldUser.Password != utils.Hash(newUser.OldPassword) {
+		if oldUser.Password != hasher.Hash(newUser.OldPassword) {
 			return fmt.Errorf("not correct pass")
 		}
-		newUser.Password = utils.Hash(newUser.Password)
+		newUser.Password = hasher.Hash(newUser.Password)
 	}
 
 	newUser.ID = oldUser.ID
@@ -114,7 +111,7 @@ func (ur *UserRepo) UpdateUser(ctx context.Context, oldUser *models.User, newUse
 
 func (ur *UserRepo) UploadAvatar(c context.Context, user *models.User, file multipart.File) error {
 
-	user.Avatar = utils.Hash(user.Login)
+	user.Avatar = hasher.Hash(user.Login)
 	ur.Users[user.Login] = user
 
 	f, err := os.OpenFile("../../static/usersAvatar/"+user.Avatar, os.O_WRONLY|os.O_CREATE, 0666)

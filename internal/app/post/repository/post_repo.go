@@ -2,11 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
-	u "my-motivation/internal/pkg/utils"
+	"my-motivation/internal/pkg/utils/hasher"
 	"os"
 	"time"
 )
@@ -32,19 +33,18 @@ func (ur *PostRepo) SavePost(ctx context.Context, newPost *models.Post, userOwne
 	newPost.AuthorId = userOwner.ID
 	ur.storeImg(ctx, newPost, file, fileHandler)
 	ur.Posts[ur.PostCounter] = newPost
-	fmt.Println(userOwner)
+
 	userOwner.Posts[newPost.Id] = newPost
-	fmt.Printf("New post. Post data: %+v\n", newPost)
 	return nil
 }
 
 func (ur *PostRepo) storeImg(ctx context.Context, newPost *models.Post, file multipart.File, fileHandler *multipart.FileHeader) error {
 	if file == nil || fileHandler.Filename == "" {
-		return fmt.Errorf("no img")
+		return errors.New("empty img file")
 	}
 	t := time.Now()
 	salt := fmt.Sprintf(t.Format(time.RFC3339))
-	genFileName := u.Hash(fileHandler.Filename + salt)
+	genFileName := hasher.Hash(fileHandler.Filename + salt)
 
 	defer file.Close()
 	localImg, err := os.OpenFile("../../static/posts/"+genFileName, os.O_WRONLY|os.O_CREATE, 0666)
@@ -56,7 +56,6 @@ func (ur *PostRepo) storeImg(ctx context.Context, newPost *models.Post, file mul
 
 	defer localImg.Close()
 	_, _ = io.Copy(localImg, file)
-	fmt.Printf("Load new file\n")
 	return nil
 }
 

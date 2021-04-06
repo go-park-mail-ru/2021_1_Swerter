@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"log"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/app/session"
@@ -31,7 +30,6 @@ func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 
 	err := uu.userRepo.SaveUser(ctx, u)
 	if err != nil {
-		//TODO: обёртка для ошибок
 		return err
 	}
 	return nil
@@ -44,7 +42,6 @@ func (uu *UserUsecase) GetPrivateUser(c context.Context, login string, password 
 
 	user, err := uu.userRepo.GetPrivateUser(ctx, login, password)
 	if err != nil {
-		//TODO: обёртка для ошибок
 		return nil, err
 	}
 	return user, nil
@@ -53,13 +50,11 @@ func (uu *UserUsecase) GetPrivateUser(c context.Context, login string, password 
 func (uu *UserUsecase) GetUserBySession(c context.Context, sessionValue string) (*models.User, error) {
 	userId, err := uu.sessionManager.GetUserId(sessionValue)
 	if err != nil {
-		//TODO: обёртка для ошибок
 		return nil, err
 	}
 
 	user, err := uu.GetUserById(c, userId)
 	if err != nil {
-		//TODO: обёртка для ошибок
 		return nil, err
 	}
 
@@ -72,7 +67,6 @@ func (uu *UserUsecase) LoginUser(c context.Context, user *models.User) (*models.
 
 	u, err := uu.userRepo.GetPrivateUser(ctx, user.Login, user.Password)
 	if err != nil {
-		log.Printf("User login failed: %+v\n", user)
 		return nil, err
 	}
 
