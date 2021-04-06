@@ -89,14 +89,14 @@ func (uh *UserHandler) userProfile(w http.ResponseWriter, r *http.Request) {
 		session, err := r.Cookie("session_id")
 		if err != nil || session == nil{
 			uh.logger.Error("no authorization")
-			w.WriteHeader(http.StatusForbidden)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		user, err := uh.UserUsecase.GetUserBySession(r.Context(), session.Value)
 		if err != nil || user == nil {
 			uh.logger.Error(err.Error())
-			w.WriteHeader(http.StatusForbidden)
+			w.WriteHeader(http.StatusUnauthorized)
 		}
 		userJson, _ := json.Marshal(user)
 		w.Write(userJson)
@@ -119,6 +119,7 @@ func (uh *UserHandler) userProfile(w http.ResponseWriter, r *http.Request) {
 		err = uh.UserUsecase.UpdateUser(r.Context(), newUser, session.Value)
 		if err != nil {
 			uh.logger.Error(err.Error())
+			w.WriteHeader(http.StatusForbidden)
 			return
 		}
 		w.WriteHeader(http.StatusOK)
@@ -186,6 +187,7 @@ func (uh *UserHandler) register(w http.ResponseWriter, r *http.Request) {
 	err := uh.UserUsecase.SaveUser(ctx, &newUser)
 	if err != nil {
 		uh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 

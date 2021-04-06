@@ -22,7 +22,7 @@ func NewUserRepo() models.UserRepository {
 	return &UserRepo{
 		Users: map[string]*models.User{
 			"AS@com.ru": {
-				ID:        "id2",
+				ID:        "id1",
 				Login:     "AS@com.ru",
 				Password:  "3339985ee8ca04466ce352663e4eadb95eb2e0a3f1565ba6d427d282266497dc",
 				FirstName: "Artem",
@@ -30,9 +30,9 @@ func NewUserRepo() models.UserRepository {
 				Posts: make(map[int]*models.Post),
 			},
 		},
-		IDCounter: 3,
+		IDCounter: 2,
 		IDToLogin: map[string]string{
-			"id2" : "AS@com.ru",
+			"id1" : "AS@com.ru",
 		},
 	}
 }
