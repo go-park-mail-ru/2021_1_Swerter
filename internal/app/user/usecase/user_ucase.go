@@ -4,7 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
-	"my-motivation/internal/app/session"
+	_sessionManager "my-motivation/internal/app/session/psql"
 	"time"
 )
 
@@ -12,10 +12,10 @@ type UserUsecase struct {
 	userRepo       models.UserRepository
 	postRepo       models.PostsRepository
 	contextTimeout time.Duration
-	sessionManager *session.SessionsManager
+	sessionManager *_sessionManager.SessionsManagerPsql
 }
 
-func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *session.SessionsManager) models.UserUsecase {
+func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql) models.UserUsecase {
 	return &UserUsecase{
 		userRepo:       u,
 		postRepo:       p,

@@ -9,17 +9,17 @@ import (
 	"log"
 	"my-motivation/internal/app/middleware"
 	"my-motivation/internal/app/models"
-	"my-motivation/internal/app/session"
 	"my-motivation/internal/pkg/utils/logger"
 
 	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
 	_postUsecase "my-motivation/internal/app/post/usecase"
 	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
 	_userUsecase "my-motivation/internal/app/user/usecase"
-	//_postRepo "my-motivation/internal/app/post/repository"
 	_postRepo "my-motivation/internal/app/post/repository/psql"
-	//_userRepo "my-motivation/internal/app/user/repository"
 	_userRepoPsql "my-motivation/internal/app/user/repository/psql"
+	//_userRepo "my-motivation/internal/app/user/repository"
+	//_postRepo "my-motivation/internal/app/post/repository"
+	_sessionManager "my-motivation/internal/app/session/psql"
 
 	"net/http"
 	"os"
@@ -34,26 +34,10 @@ func getPostgres() *gorm.DB {
 		log.Fatal(err)
 	}
 	//Только во ремя разработки автомигрете
-	db.AutoMigrate(&models.User{}, &models.Post{})
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{})
 	return db
 }
 
-
-//
-type Topic struct {
-	gorm.Model
-	// TopicID uint `gorm:"primary_key"`
-	Name    string
-	Posts   []Post `gorm:"ForeignKey:ID"`
-}
-
-type Post struct {
-	gorm.Model
-	// PostID     uint `gorm:"primary_key"`
-	Title      string
-	TopicRefer uint `gorm:"column:id"`
-}
-//
 
 func main() {
 	//logger
@@ -62,7 +46,7 @@ func main() {
 	//repo
 	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
 	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
-	sessionManager := session.NewSessionManager()
+	sessionManager := _sessionManager.NewSessionsManagerPsql(getPostgres())
 
 
 	//usecase

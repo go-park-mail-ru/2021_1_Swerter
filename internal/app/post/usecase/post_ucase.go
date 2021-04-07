@@ -4,7 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
-	"my-motivation/internal/app/session"
+	_sessionManager "my-motivation/internal/app/session/psql"
 	"time"
 )
 
@@ -12,10 +12,10 @@ type PostUsecase struct {
 	UserRepo       models.UserRepository
 	PostRepo       models.PostsRepository
 	contextTimeout time.Duration
-	sessionManager *session.SessionsManager
+	sessionManager *_sessionManager.SessionsManagerPsql
 }
 
-func NewPostUsecase(ur models.UserRepository, pr models.PostsRepository, timeout time.Duration, sm *session.SessionsManager) models.PostsUsecase {
+func NewPostUsecase(ur models.UserRepository, pr models.PostsRepository, timeout time.Duration, sm *_sessionManager.SessionsManagerPsql) models.PostsUsecase {
 	return &PostUsecase{
 		UserRepo: ur,
 		PostRepo: pr,

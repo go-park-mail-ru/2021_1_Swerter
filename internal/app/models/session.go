@@ -1,7 +1,10 @@
 package models
 
+import "gorm.io/gorm"
+
 type Session struct {
-	ID     string
+	gorm.Model
+	ID     string `gorm:"primaryKey;autoIncrement:false"`
 	UserID int
 }
 
@@ -10,5 +13,4 @@ type SessionRepository interface {
 	UpdateSession()
 	DeleteSession()
 	GetSession()
-
 }
