@@ -9,23 +9,21 @@ import (
 	"log"
 	"my-motivation/internal/app/middleware"
 	"my-motivation/internal/app/models"
-
-	//Драйвер к постгресу
-	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
-	_postRepo "my-motivation/internal/app/post/repository"
-	_postUsecase "my-motivation/internal/app/post/usecase"
 	"my-motivation/internal/app/session"
+	"my-motivation/internal/pkg/utils/logger"
+
+	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
+	_postUsecase "my-motivation/internal/app/post/usecase"
 	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
 	_userUsecase "my-motivation/internal/app/user/usecase"
-	"my-motivation/internal/pkg/utils/logger"
+	//_postRepo "my-motivation/internal/app/post/repository"
+	_postRepo "my-motivation/internal/app/post/repository/psql"
 	//_userRepo "my-motivation/internal/app/user/repository"
 	_userRepoPsql "my-motivation/internal/app/user/repository/psql"
 
 	"net/http"
 	"os"
 	"time"
-	//log "github.com/sirupsen/logrus"
-
 )
 
 
@@ -36,21 +34,36 @@ func getPostgres() *gorm.DB {
 		log.Fatal(err)
 	}
 	//Только во ремя разработки автомигрете
-	db.AutoMigrate(&models.User{})
-
+	db.AutoMigrate(&models.User{}, &models.Post{})
 	return db
 }
+
+
+//
+type Topic struct {
+	gorm.Model
+	// TopicID uint `gorm:"primary_key"`
+	Name    string
+	Posts   []Post `gorm:"ForeignKey:ID"`
+}
+
+type Post struct {
+	gorm.Model
+	// PostID     uint `gorm:"primary_key"`
+	Title      string
+	TopicRefer uint `gorm:"column:id"`
+}
+//
 
 func main() {
 	//logger
 	log := logger.NewLogger()
 
 	//repo
-	//userRepo := _userRepo.NewUserRepo()
-	//NewUserRepoPsql
 	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
-	postRepo := _postRepo.NewPostRepo(userRepo)
+	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
 	sessionManager := session.NewSessionManager()
+
 
 	//usecase
 	timeoutContext := 2 * time.Second
