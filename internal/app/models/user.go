@@ -9,13 +9,13 @@ import (
 //TODO: validate
 type User struct {
 	gorm.Model
-	ID          int    `json:"-" gorm:"primaryKey;autoIncrement:true"`
+	ID          int    `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	Login       string `json:"login"`
 	FirstName   string `json:"firstName"`
 	LastName    string `json:"lastName"`
 	OldPassword string `json:"oldPassword"`
 	Password    string `json:"password"`
-	Posts       int    `json:"postsData"`
+	Posts       []Post `json:"postsData" gorm:"foreignKey:AuthorId"`
 	Avatar      string `json:"avatar"`
 }
 
@@ -25,7 +25,7 @@ type UserUsecase interface {
 	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
 	GetUserBySession(c context.Context, sessionValue string) (*User, error)
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
-	GetUserById(ctx context.Context, id string) (*User, error)
+	GetUserById(ctx context.Context, id int) (*User, error)
 	UpdateUser(ctx context.Context, newUser *User, session string) error
 	UploadAvatar(c context.Context, sessionId string, file multipart.File) error
 	//Для логина и пароля
@@ -34,9 +34,8 @@ type UserUsecase interface {
 
 type UserRepository interface {
 	SaveUser(ctx context.Context, u *User) error
-	//Не надо будет
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
-	GetUserById(ctx context.Context, id string) (*User, error)
+	GetUserById(ctx context.Context, id int) (*User, error)
 	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
 	UpdateUser(ctx context.Context, oldUser *User, newUser *User) error
 	UploadAvatar(c context.Context, user *User, file multipart.File) error

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/app/session"
@@ -71,7 +70,7 @@ func (uu *UserUsecase) LoginUser(c context.Context, user *models.User) (*models.
 		return nil, err
 	}
 
-	sess, err := uu.sessionManager.Create(fmt.Sprint(u.ID))
+	sess, err := uu.sessionManager.Create(u.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -82,11 +81,15 @@ func (uu *UserUsecase) GetUserByLogin(ctx context.Context, login string) (*model
 	return nil, nil
 }
 
-func (uu *UserUsecase) GetUserById(c context.Context, id string) (*models.User, error) {
+func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 
 	user, err := uu.userRepo.GetUserById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
 	if err != nil {
 		return nil, err
 	}

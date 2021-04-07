@@ -29,12 +29,12 @@ func NewPostRepo(ur models.UserRepository) models.PostsRepository {
 
 func (ur *PostRepo) SavePost(ctx context.Context, newPost *models.Post, userOwner *models.User, file multipart.File, fileHandler *multipart.FileHeader) error {
 	//ur.PostCounter++
-	//newPost.Id = ur.PostCounter
+	//newPost.ID = ur.PostCounter
 	//newPost.AuthorId = userOwner.ID
 	//ur.storeImg(ctx, newPost, file, fileHandler)
 	//ur.Posts[ur.PostCounter] = newPost
 	//
-	//userOwner.Posts[newPost.Id] = newPost
+	//userOwner.Posts[newPost.ID] = newPost
 	return nil
 }
 

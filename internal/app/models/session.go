@@ -2,11 +2,11 @@ package models
 
 type Session struct {
 	ID     string
-	UserID string
+	UserID int
 }
 
 type SessionRepository interface {
-	CreateSession(userId string) (Session, error)
+	CreateSession(userId int) (Session, error)
 	UpdateSession()
 	DeleteSession()
 	GetSession()

@@ -2,10 +2,14 @@ package psql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"gorm.io/gorm"
+	"io"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
+	"my-motivation/internal/pkg/utils/hasher"
+	"os"
 	"time"
 )
 
@@ -24,10 +28,9 @@ func NewUserRepoPsql(db *gorm.DB) *UserRepoPsql {
 	return &UserRepoPsql{DB: db}
 }
 
-func (urp *UserRepoPsql) SaveUser(c context.Context, u *models.User) error {
-	timeout := time.Second * 2
-	ctx, _ := context.WithTimeout(c, timeout)
-	fmt.Printf("%+v\n", u)
+func (urp *UserRepoPsql) SaveUser(ctx context.Context, u *models.User) error {
+	u.Password = hasher.Hash(u.Password)
+	//u.Posts = []models.Post{{Text: "hello"},{Text: "world"}}
 	err := urp.DB.WithContext(ctx).Create(u).Error
 	if err != nil {
 		return err
@@ -36,34 +39,64 @@ func (urp *UserRepoPsql) SaveUser(c context.Context, u *models.User) error {
 }
 
 func (urp *UserRepoPsql) GetUserByLogin(ctx context.Context, login string) (*models.User, error) {
-	//timeout := time.Second * 2
-	//ctx, cancel := context.WithTimeout(c, time.Second * 2)
 	u := models.User{}
+	err := urp.DB.WithContext(ctx).First(&u, "login = ?", login).Error
+	if err != nil {
+		return nil, err
+	}
 	return &u, nil
 }
 
-func (urp *UserRepoPsql) GetUserById(ctx context.Context, id string) (*models.User, error) {
-	//timeout := time.Second * 2
-	//ctx, cancel := context.WithTimeout(c, time.Second * 2)
+func (urp *UserRepoPsql) GetUserById(ctx context.Context, id int) (*models.User, error) {
 	u := models.User{}
+	err := urp.DB.WithContext(ctx).First(&u, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
 	return &u, nil
 }
 
 func (urp *UserRepoPsql) GetPrivateUser(ctx context.Context, login string, password string) (*models.User, error) {
-	//timeout := time.Second * 2
-	//ctx, cancel := context.WithTimeout(c, time.Second * 2)
 	u := models.User{}
+	err := urp.DB.WithContext(ctx).First(&u, "login = ? AND password = ?", login, hasher.Hash(password)).Error
+	if err != nil {
+		return nil, err
+	}
 	return &u, nil
 }
 
 func (urp *UserRepoPsql) UpdateUser(ctx context.Context, oldUser *models.User, newUser *models.User) error {
-	//timeout := time.Second * 2
-	//ctx, cancel := context.WithTimeout(c, time.Second * 2)
+	if newUser.Password != "" {
+		if oldUser.Password != hasher.Hash(newUser.OldPassword) {
+			return errors.New("password not match")
+		}
+		newUser.Password = hasher.Hash(newUser.OldPassword)
+	}
+
+	err := urp.DB.WithContext(ctx).Model(oldUser).Updates(newUser).Error
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (urp *UserRepoPsql) UploadAvatar(c context.Context, user *models.User, file multipart.File) error {
-	//timeout := time.Second * 2
-	//ctx, cancel := context.WithTimeout(c, time.Second * 2)
+func (urp *UserRepoPsql) UploadAvatar(ctx context.Context, u *models.User, file multipart.File) error {
+	t := time.Now()
+	salt := fmt.Sprintf(t.Format(time.RFC3339))
+
+	u.Avatar = hasher.Hash(u.Login + salt)
+	f, err := os.OpenFile("../../static/usersAvatar/"+u.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, _ = io.Copy(f, file)
+
+	err = urp.DB.WithContext(ctx).Model(u).Update("avatar", u.Avatar).Error
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

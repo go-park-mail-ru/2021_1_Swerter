@@ -22,7 +22,7 @@ func NewSessionManager() *SessionsManager {
 	}
 }
 
-func (sm *SessionsManager) Create(userID string) (*models.Session, error) {
+func (sm *SessionsManager) Create(userID int) (*models.Session, error) {
 	sessionId := genSession(userID)
 	sess := models.Session{
 		ID:     sessionId,
@@ -37,16 +37,16 @@ func (sm *SessionsManager) Create(userID string) (*models.Session, error) {
 	return &sess, nil
 }
 
-func (sm *SessionsManager) GetUserId(sessionValue string) (userId string, err error){
+func (sm *SessionsManager) GetUserId(sessionValue string) (userId int, err error){
 	session, ok := sm.sessions[sessionValue]
 	if !ok || session == nil {
-		return "", errors.New("no session")
+		return -1, errors.New("no session")
 	}
 	return session.UserID, nil
 }
 
-func genSession(id string) (session string) {
-	hash := sha256.Sum256([]byte(id + fmt.Sprint(time.Now().Unix())))
+func genSession(id int) (session string) {
+	hash := sha256.Sum256([]byte(fmt.Sprint(id) + fmt.Sprint(time.Now().Unix())))
 	session = fmt.Sprintf("%x", hash)
 	return
 }

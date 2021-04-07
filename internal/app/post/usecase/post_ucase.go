@@ -45,7 +45,7 @@ func (pu *PostUsecase) SavePost(c context.Context, session string, imgFile multi
 	return nil
 }
 
-func (pu *PostUsecase) GetPosts(c context.Context, session string) (map[int]*models.Post, error) {
+func (pu *PostUsecase) GetPosts(c context.Context, session string) ([]models.Post, error) {
 	userId, err := pu.sessionManager.GetUserId(session)
 	if err != nil {
 		return nil, err
