@@ -100,3 +100,21 @@ func (urp *UserRepoPsql) UploadAvatar(ctx context.Context, u *models.User, file 
 
 	return nil
 }
+
+func (urp *UserRepoPsql) GetFriends(ctx context.Context, user *models.User) (map[string]*models.User, error) {
+	//if user == nil {
+	//	return nil, errors.New("empty pointer to user")
+	//}
+	//
+	//users := ur.Users[user.Login].Friends
+	return nil, nil
+}
+
+func (urp *UserRepoPsql) SaveFriend(ctx context.Context, user *models.User, userFiend *models.User) error {
+	//if user == nil || userFiend == nil {
+	//	return errors.New("empty pointer to user")
+	//}
+	//
+	//ur.Users[user.Login].Friends[userFiend.Login] = userFiend
+	return nil
+}

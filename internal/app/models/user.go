@@ -36,17 +36,11 @@ type UserUsecase interface {
 
 type UserRepository interface {
 	SaveUser(ctx context.Context, u *User) error
-<<<<<<< HEAD
-	GetUserById(ctx context.Context, id string) (*User, error)
-	GetUserByLogin(ctx context.Context, login string) (*User, error)
 	SaveFriend(ctx context.Context, user *User, userFiend *User) error
-=======
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
 	GetUserById(ctx context.Context, id int) (*User, error)
 	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
->>>>>>> postgr-repository
 	UpdateUser(ctx context.Context, oldUser *User, newUser *User) error
 	GetFriends(ctx context.Context, user *User) (map[string]*User, error)
 	UploadAvatar(c context.Context, user *User, file multipart.File) error
-	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
 }
