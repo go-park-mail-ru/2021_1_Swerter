@@ -70,6 +70,7 @@ func (uh *UserHandler) getUserProfileByID(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		uh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	uh.logger.Debug(fmt.Sprintf("get user with id: %s", mux.Vars(r)["userID"]))
@@ -193,6 +194,6 @@ func (uh *UserHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	uh.logger.Debug(fmt.Sprintf("New user. Private user data: %+v\n", newUser))
 
-	responseBody := []byte("{\"userID\":" + newUser.ID + "}")
+	responseBody := []byte("{\"userID\":" + fmt.Sprint(newUser.ID) + "}")
 	w.Write(responseBody)
 }

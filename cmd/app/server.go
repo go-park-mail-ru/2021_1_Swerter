@@ -2,17 +2,23 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
 	"my-motivation/internal/app/middleware"
+	"my-motivation/internal/app/models"
+
+	//Драйвер к постгресу
 	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
 	_postRepo "my-motivation/internal/app/post/repository"
 	_postUsecase "my-motivation/internal/app/post/usecase"
 	"my-motivation/internal/app/session"
 	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
-	_userRepo "my-motivation/internal/app/user/repository"
 	_userUsecase "my-motivation/internal/app/user/usecase"
 	"my-motivation/internal/pkg/utils/logger"
+	//_userRepo "my-motivation/internal/app/user/repository"
+	_userRepoPsql "my-motivation/internal/app/user/repository/psql"
 
-	//"my-motivation/internal/pkg/utils/logger"
 	"net/http"
 	"os"
 	"time"
@@ -20,12 +26,35 @@ import (
 
 )
 
+//TODO:вынести в конфиг всё
+type Product struct {
+	gorm.Model
+	Code  string
+	Price uint
+}
+
+func getPostgres() *gorm.DB {
+	dsn := "host=localhost user=vk password=vk dbname=vk port=5400 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	//Только во ремя разработки автомигрете
+	db.AutoMigrate(&Product{})
+	db.AutoMigrate(&models.User{})
+
+	db.Create(&Product{Code: "10", Price: 100})
+	return db
+}
+
 func main() {
 	//logger
 	log := logger.NewLogger()
 
 	//repo
-	userRepo := _userRepo.NewUserRepo()
+	//userRepo := _userRepo.NewUserRepo()
+	//NewUserRepoPsql
+	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
 	postRepo := _postRepo.NewPostRepo(userRepo)
 	sessionManager := session.NewSessionManager()
 

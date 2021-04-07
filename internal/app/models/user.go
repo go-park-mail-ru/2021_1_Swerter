@@ -2,19 +2,21 @@ package models
 
 import (
 	"context"
+	"gorm.io/gorm"
 	"mime/multipart"
 )
 
 //TODO: validate
 type User struct {
-	ID          string        `json:"userId"`
-	Login       string        `json:"login"`
-	FirstName   string        `json:"firstName"`
-	LastName    string        `json:"lastName"`
-	OldPassword string        `json:"oldPassword"`
-	Password    string        `json:"password"`
-	Posts       map[int]*Post `json:"postsData"`
-	Avatar      string        `json:"avatar"`
+	gorm.Model
+	ID          int    `json:"-" gorm:"primaryKey;autoIncrement:true"`
+	Login       string `json:"login"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	OldPassword string `json:"oldPassword"`
+	Password    string `json:"password"`
+	Posts       int    `json:"postsData"`
+	Avatar      string `json:"avatar"`
 }
 
 type UserUsecase interface {
@@ -32,6 +34,7 @@ type UserUsecase interface {
 
 type UserRepository interface {
 	SaveUser(ctx context.Context, u *User) error
+	//Не надо будет
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
 	GetUserById(ctx context.Context, id string) (*User, error)
 	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)

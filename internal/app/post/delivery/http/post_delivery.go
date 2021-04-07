@@ -41,29 +41,29 @@ func (ph *PostHandler) allPosts(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(jsonValue))
 }
 
+
 func (ph *PostHandler) addPost(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	defer r.Body.Close()
-	session, err := r.Cookie("session_id")
-	if err != nil {
-		ph.logger.Error("no authorization")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	imgFile, fileHandler, err := r.FormFile("imgContent")
-	newPost := models.Post{}
-	newPost.Date = r.FormValue("date")
-	newPost.Text = r.FormValue("textPost")
-
-	err = ph.PostUsecase.SavePost(r.Context(), session.Value, imgFile, fileHandler, &newPost)
-
-	if err != nil {
-		ph.logger.Error(err.Error())
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
+	//session, err := r.Cookie("session_id")
+	//if err != nil {
+	//	ph.logger.Error("no authorization")
+	//	w.WriteHeader(http.StatusForbidden)
+	//	return
+	//}
+	//
+	//imgFile, fileHandler, err := r.FormFile("imgContent")
+	//newPost := models.Post{}
+	//newPost.Date = r.FormValue("date")
+	//newPost.Text = r.FormValue("textPost")
+	//
+	//err = ph.PostUsecase.SavePost(r.Context(), session.Value, imgFile, fileHandler, &newPost)
+	//
+	//if err != nil {
+	//	ph.logger.Error(err.Error())
+	//	w.WriteHeader(http.StatusForbidden)
+	//	return
+	//}
 
 	w.WriteHeader(http.StatusOK)
 }

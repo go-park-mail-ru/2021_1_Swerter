@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/app/session"
@@ -70,7 +71,7 @@ func (uu *UserUsecase) LoginUser(c context.Context, user *models.User) (*models.
 		return nil, err
 	}
 
-	sess, err := uu.sessionManager.Create(u.ID)
+	sess, err := uu.sessionManager.Create(fmt.Sprint(u.ID))
 	if err != nil {
 		return nil, err
 	}
