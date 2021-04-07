@@ -67,7 +67,7 @@ func (uh *UserHandler) getUserProfileByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	userId, err := strconv.Atoi(mux.Vars(r)["userID"])
+	userId, err := strconv.Atoi(mux.Vars(r)["userID"][2:])
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -80,7 +80,7 @@ func (uh *UserHandler) getUserProfileByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	uh.logger.Debug(fmt.Sprintf("get user with id: %s", mux.Vars(r)["userID"]))
+	uh.logger.Debug(fmt.Sprintf("get user with id: %d", userId))
 	body, _ := json.Marshal(user)
 	w.Write(body)
 }

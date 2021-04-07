@@ -59,6 +59,15 @@ func (urp *PostRepoPsql) GetPosts(ctx context.Context) ([]models.Post, error) {
 	if err != nil {
 		return nil,err
 	}
+	for i, _ := range posts {
+		u := models.User{}
+		err = urp.DB.WithContext(ctx).First(&u, "id = ?", posts[i].AuthorId).Error
+		if err != nil {
+			return nil, err
+		}
+		posts[i].Author = u.FirstName + " " + u.LastName
+		posts[i].AuthorAva = u.Avatar
+	}
 	return posts, nil
 }
 
