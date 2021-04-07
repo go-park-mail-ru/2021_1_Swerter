@@ -1,5 +1,7 @@
 package main
 
+//Запускать go run в этой директории, т.к. go run делает бинарник, а пути у нас до staticfileHandlera захардкожены
+
 import (
 	"github.com/gorilla/mux"
 	"gorm.io/driver/postgres"
@@ -26,12 +28,6 @@ import (
 
 )
 
-//TODO:вынести в конфиг всё
-type Product struct {
-	gorm.Model
-	Code  string
-	Price uint
-}
 
 func getPostgres() *gorm.DB {
 	dsn := "host=localhost user=vk password=vk dbname=vk port=5400 sslmode=disable"
@@ -40,10 +36,8 @@ func getPostgres() *gorm.DB {
 		log.Fatal(err)
 	}
 	//Только во ремя разработки автомигрете
-	db.AutoMigrate(&Product{})
 	db.AutoMigrate(&models.User{})
 
-	db.Create(&Product{Code: "10", Price: 100})
 	return db
 }
 
