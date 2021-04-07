@@ -9,7 +9,7 @@ import (
 //TODO: validate
 type User struct {
 	gorm.Model
-	ID          int    `json:"id" gorm:"primaryKey;autoIncrement:true"`
+	ID          int    `json:"id" gorm:"primaryKey;autoIncrement:true;"`
 	Login       string `json:"login"`
 	FirstName   string `json:"firstName"`
 	LastName    string `json:"lastName"`

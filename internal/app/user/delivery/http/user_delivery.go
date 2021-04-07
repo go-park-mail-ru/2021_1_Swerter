@@ -26,9 +26,9 @@ func NewUserHandler(r *mux.Router, uu models.UserUsecase, l *logger.Logger) {
 	r.HandleFunc("/profile", handler.userProfile).Methods("GET", "POST", "OPTIONS")
 	r.HandleFunc("/profile/{userID}", handler.getUserProfileByID).Methods("GET", "OPTIONS")
 
-	//user
-	r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
-	r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
+	////user
+	//r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
+	//r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
 
 	//auth
 	r.HandleFunc("/login", handler.login).Methods("POST", "OPTIONS")

@@ -7,16 +7,19 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	_friendHttpDelivery "my-motivation/internal/app/friend/delivery/http"
+	_friendRepo "my-motivation/internal/app/friend/repository/psql"
+	_friendUsecase "my-motivation/internal/app/friend/usecase"
 	"my-motivation/internal/app/middleware"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/pkg/utils/logger"
 
 	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
+	_postRepo "my-motivation/internal/app/post/repository/psql"
 	_postUsecase "my-motivation/internal/app/post/usecase"
 	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
-	_userUsecase "my-motivation/internal/app/user/usecase"
-	_postRepo "my-motivation/internal/app/post/repository/psql"
 	_userRepoPsql "my-motivation/internal/app/user/repository/psql"
+	_userUsecase "my-motivation/internal/app/user/usecase"
 	//_userRepo "my-motivation/internal/app/user/repository"
 	//_postRepo "my-motivation/internal/app/post/repository"
 	_sessionManager "my-motivation/internal/app/session/psql"
@@ -34,7 +37,7 @@ func getPostgres() *gorm.DB {
 		log.Fatal(err)
 	}
 	//Только во ремя разработки автомигрете
-	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{})
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{})
 	return db
 }
 
@@ -46,6 +49,7 @@ func main() {
 	//repo
 	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
 	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
+	friendRepo := _friendRepo.NewFriendRepoPsql(getPostgres())
 	sessionManager := _sessionManager.NewSessionsManagerPsql(getPostgres())
 
 
@@ -53,11 +57,13 @@ func main() {
 	timeoutContext := 2 * time.Second
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, timeoutContext, sessionManager)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager)
+	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
 
 	//delivery
 	r := mux.NewRouter()
 	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
 	_postHttpDelivery.NewPostHandler(r, postUsecase, log)
+	_friendHttpDelivery.NewFiendHandler(r, friendUsecase, log)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
 
 	//index
