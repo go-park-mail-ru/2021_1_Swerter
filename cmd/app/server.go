@@ -1,33 +1,53 @@
 package main
 
+//Запускать go run в этой директории, т.к. go run делает бинарник, а пути у нас до staticfileHandlera захардкожены
+
 import (
 	"github.com/gorilla/mux"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
 	"my-motivation/internal/app/middleware"
-	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
-	_postRepo "my-motivation/internal/app/post/repository"
-	_postUsecase "my-motivation/internal/app/post/usecase"
-	"my-motivation/internal/app/session"
-	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
-	_userRepo "my-motivation/internal/app/user/repository"
-	_userUsecase "my-motivation/internal/app/user/usecase"
+	"my-motivation/internal/app/models"
 	"my-motivation/internal/pkg/utils/logger"
 
-	//"my-motivation/internal/pkg/utils/logger"
+	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
+	_postUsecase "my-motivation/internal/app/post/usecase"
+	_userHttpDelivery "my-motivation/internal/app/user/delivery/http"
+	_userUsecase "my-motivation/internal/app/user/usecase"
+	_postRepo "my-motivation/internal/app/post/repository/psql"
+	_userRepoPsql "my-motivation/internal/app/user/repository/psql"
+	//_userRepo "my-motivation/internal/app/user/repository"
+	//_postRepo "my-motivation/internal/app/post/repository"
+	_sessionManager "my-motivation/internal/app/session/psql"
+
 	"net/http"
 	"os"
 	"time"
-	//log "github.com/sirupsen/logrus"
-
 )
+
+
+func getPostgres() *gorm.DB {
+	dsn := "host=localhost user=vk password=vk dbname=vk port=5400 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	//Только во ремя разработки автомигрете
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{})
+	return db
+}
+
 
 func main() {
 	//logger
 	log := logger.NewLogger()
 
 	//repo
-	userRepo := _userRepo.NewUserRepo()
-	postRepo := _postRepo.NewPostRepo(userRepo)
-	sessionManager := session.NewSessionManager()
+	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
+	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
+	sessionManager := _sessionManager.NewSessionsManagerPsql(getPostgres())
+
 
 	//usecase
 	timeoutContext := 2 * time.Second

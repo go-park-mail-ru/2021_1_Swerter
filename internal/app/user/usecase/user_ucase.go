@@ -4,7 +4,7 @@ import (
 	"context"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
-	"my-motivation/internal/app/session"
+	_sessionManager "my-motivation/internal/app/session/psql"
 	"time"
 )
 
@@ -12,10 +12,10 @@ type UserUsecase struct {
 	userRepo       models.UserRepository
 	postRepo       models.PostsRepository
 	contextTimeout time.Duration
-	sessionManager *session.SessionsManager
+	sessionManager *_sessionManager.SessionsManagerPsql
 }
 
-func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *session.SessionsManager) models.UserUsecase {
+func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql) models.UserUsecase {
 	return &UserUsecase{
 		userRepo:       u,
 		postRepo:       p,
@@ -128,11 +128,15 @@ func (uu *UserUsecase) GetUserByLogin(ctx context.Context, login string) (*model
 	return nil, nil
 }
 
-func (uu *UserUsecase) GetUserById(c context.Context, id string) (*models.User, error) {
+func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 
 	user, err := uu.userRepo.GetUserById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
 	if err != nil {
 		return nil, err
 	}

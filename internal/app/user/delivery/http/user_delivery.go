@@ -7,18 +7,19 @@ import (
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/pkg/utils/logger"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type UserHandler struct {
 	UserUsecase models.UserUsecase
-	logger logger.LoggerModel
+	logger      logger.LoggerModel
 }
 
-func NewUserHandler(r *mux.Router, uu models.UserUsecase, l * logger.Logger) {
+func NewUserHandler(r *mux.Router, uu models.UserUsecase, l *logger.Logger) {
 	handler := &UserHandler{
 		UserUsecase: uu,
-		logger: l,
+		logger:      l,
 	}
 	//user
 	r.HandleFunc("/profile/loadImg", handler.uploadAvatar).Methods("POST", "OPTIONS")
@@ -119,7 +120,7 @@ func (uh *UserHandler) uploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	session, err := r.Cookie("session_id")
-	if err != nil || session == nil{
+	if err != nil || session == nil {
 		uh.logger.Error("no authorization")
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -139,17 +140,23 @@ func (uh *UserHandler) getUserProfileByID(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	user, err := uh.UserUsecase.GetUserById(r.Context(), mux.Vars(r)["userID"])
+	userId, err := strconv.Atoi(mux.Vars(r)["userID"][2:])
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	user, err := uh.UserUsecase.GetUserById(r.Context(), userId)
 	if err != nil {
 		uh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	uh.logger.Debug(fmt.Sprintf("get user with id: %s", mux.Vars(r)["userID"]))
+	uh.logger.Debug(fmt.Sprintf("get user with id: %d", userId))
 	body, _ := json.Marshal(user)
 	w.Write(body)
 }
-
 
 func (uh *UserHandler) userProfile(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -160,7 +167,7 @@ func (uh *UserHandler) userProfile(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodGet {
 		session, err := r.Cookie("session_id")
-		if err != nil || session == nil{
+		if err != nil || session == nil {
 			uh.logger.Error("no authorization")
 			w.WriteHeader(http.StatusUnauthorized)
 			return
@@ -266,6 +273,6 @@ func (uh *UserHandler) register(w http.ResponseWriter, r *http.Request) {
 
 	uh.logger.Debug(fmt.Sprintf("New user. Private user data: %+v\n", newUser))
 
-	responseBody := []byte("{\"userID\":" + newUser.ID + "}")
+	responseBody := []byte("{\"userID\":" + fmt.Sprint(newUser.ID) + "}")
 	w.Write(responseBody)
 }

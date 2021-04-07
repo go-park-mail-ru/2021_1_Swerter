@@ -41,10 +41,10 @@ func (ph *PostHandler) allPosts(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(jsonValue))
 }
 
+
 func (ph *PostHandler) addPost(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	defer r.Body.Close()
 	session, err := r.Cookie("session_id")
 	if err != nil {
 		ph.logger.Error("no authorization")
