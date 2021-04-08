@@ -37,18 +37,6 @@ func (uu *FriendUsecase) GetFriends(c context.Context, session string) ([]models
 		return nil, err
 	}
 
-	for i, _ := range friends {
-		friends[i].User, err = uu.userRepo.GetUserById(ctx, friends[i].UserID)
-		if err != nil {
-			return nil, err
-		}
-
-		friends[i].Friend, err = uu.userRepo.GetUserById(ctx, friends[i].FriendID)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	return friends, nil
 }
 

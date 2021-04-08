@@ -17,7 +17,7 @@ func NewFriendRepoPsql(db *gorm.DB) *FriendRepoPsql {
 
 func (frp *FriendRepoPsql) GetFriends(ctx context.Context, userID int) ([]models.Friend, error) {
 	user := []models.Friend{}
-	err := frp.DB.WithContext(ctx).Find(&user, "user_id = ?", userID).Error
+	err := frp.DB.WithContext(ctx).Preload("User").Preload("Friend").Find(&user, "user_id = ?", userID).Error
 	if err != nil {
 		return nil, err
 	}

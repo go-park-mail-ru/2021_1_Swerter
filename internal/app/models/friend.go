@@ -10,8 +10,8 @@ type Friend struct {
 	ID       int  `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	UserID   int  `json:"userId"`
 	FriendID int  `json:"friendId"`
-	User     *User `json:"user"`
-	Friend   *User `json:"friend"`
+	User     User `json:"user" gorm:"foreignKey:UserID"`
+	Friend   User `json:"friend"  gorm:"foreignKey:FriendID"`
 }
 
 type FriendUsecase interface {
