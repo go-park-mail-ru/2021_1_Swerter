@@ -61,6 +61,11 @@ func (pu *PostUsecase) GetPosts(c context.Context, session string) ([]models.Pos
 	}
 
 	posts, err := pu.PostRepo.GetPosts(ctx)
+	for i, _ := range posts {
+		posts[i].Liked=true
+		posts[i].LikeCounter=10
+	}
+
 	if err != nil {
 		return nil, err
 	}

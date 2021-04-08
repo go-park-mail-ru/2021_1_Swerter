@@ -18,7 +18,7 @@ func NewFiendHandler(r *mux.Router, fu models.FriendUsecase, l *logger.Logger) {
 		FriendUsecase: fu,
 		logger:      l,
 	}
-
+	//Зачем user в url
 	r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
 	r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
 }

@@ -137,6 +137,13 @@ func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, err
 		return nil, err
 	}
 	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
+
+	//Тут понять лайкнут ли и сколько всего лайков
+	for i, _ := range user.Posts {
+		user.Posts[i].Liked=true
+		user.Posts[i].LikeCounter=10
+	}
+
 	if err != nil {
 		return nil, err
 	}
