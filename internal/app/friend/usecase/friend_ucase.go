@@ -23,7 +23,7 @@ func NewFriendUsecase(f models.FriendRepository, u models.UserRepository, t time
 	}
 }
 
-func (uu *FriendUsecase) GetFriends(c context.Context, session string) ([]models.Friend, error) {
+func (uu *FriendUsecase) GetFriends(c context.Context, session string) ([]models.User, error) {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 
@@ -32,12 +32,57 @@ func (uu *FriendUsecase) GetFriends(c context.Context, session string) ([]models
 		return nil, err
 	}
 
-	friends, err := uu.friendRepo.GetFriends(ctx, userID)
+	//На кого подписан
+	userSubscribed, err := uu.friendRepo.GetSubscriptions(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return friends, nil
+	//кто подписан на user
+	userFollowers, err := uu.friendRepo.GetFollowers(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	onlyFriends := []models.User{}
+	for _, follower := range userFollowers {
+		if uu.isFriend(follower.UserID, userSubscribed) {
+			onlyFriends = append(onlyFriends, follower.User.Public())
+		}
+	}
+
+	return onlyFriends, nil
+}
+
+func (uu *FriendUsecase) GetFollowers(c context.Context, session string) ([]models.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
+	defer cancel()
+
+	userID, err := uu.sessionManager.GetUserId(session)
+	if err != nil {
+		return nil, err
+	}
+
+	//На кого подписан
+	userSubscribed, err := uu.friendRepo.GetSubscriptions(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	//кто подписан на тебя
+	userFollowers, err := uu.friendRepo.GetFollowers(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	onlyFollowers := []models.User{}
+	for _, follower := range userFollowers {
+		if !uu.isFriend(follower.UserID, userSubscribed) {
+			onlyFollowers = append(onlyFollowers, follower.User.Public())
+		}
+	}
+
+	return onlyFollowers, nil
 }
 
 func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend *models.User) error {
@@ -60,4 +105,13 @@ func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend 
 		return err
 	}
 	return nil
+}
+
+func (uu *FriendUsecase) isFriend(friendID int, users []models.Friend) bool {
+	for _, user := range users {
+		if friendID == user.FriendID {
+			return true
+		}
+	}
+	return false
 }

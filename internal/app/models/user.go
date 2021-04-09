@@ -6,7 +6,6 @@ import (
 	"mime/multipart"
 )
 
-//TODO: validate
 type User struct {
 	gorm.Model
 	ID          int    `json:"id" gorm:"primaryKey;autoIncrement:true;"`
@@ -17,6 +16,27 @@ type User struct {
 	Password    string `json:"password"`
 	Posts       []Post `json:"postsData" gorm:"foreignKey:AuthorId"`
 	Avatar      string `json:"avatar"`
+}
+
+func (u *User) Public() User {
+	return User{
+		ID: u.ID,
+		FirstName: u.FirstName,
+		LastName: u.LastName,
+		Avatar: u.Avatar,
+		Posts: u.Posts,
+	}
+}
+
+func (u *User) Private() User {
+	return User{
+		ID: u.ID,
+		FirstName: u.FirstName,
+		LastName: u.LastName,
+		Avatar: u.Avatar,
+		Posts: u.Posts,
+		Login: u.Login,
+	}
 }
 
 type UserUsecase interface {

@@ -2,7 +2,6 @@ package psql
 
 import (
 	"context"
-	"fmt"
 	"gorm.io/gorm"
 	"my-motivation/internal/app/models"
 )
@@ -15,13 +14,21 @@ func NewFriendRepoPsql(db *gorm.DB) *FriendRepoPsql {
 	return &FriendRepoPsql{DB: db}
 }
 
-func (frp *FriendRepoPsql) GetFriends(ctx context.Context, userID int) ([]models.Friend, error) {
+func (frp *FriendRepoPsql) GetSubscriptions(ctx context.Context, userID int) ([]models.Friend, error) {
 	user := []models.Friend{}
 	err := frp.DB.WithContext(ctx).Preload("User").Preload("Friend").Find(&user, "user_id = ?", userID).Error
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(user[0].Friend)
+	return user, nil
+}
+
+func (frp *FriendRepoPsql) GetFollowers(ctx context.Context, userID int) ([]models.Friend, error) {
+	user := []models.Friend{}
+	err := frp.DB.WithContext(ctx).Preload("User").Preload("Friend").Find(&user, "friend_id = ?", userID).Error
+	if err != nil {
+		return nil, err
+	}
 	return user, nil
 }
 

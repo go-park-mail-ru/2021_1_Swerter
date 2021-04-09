@@ -16,10 +16,12 @@ type Friend struct {
 
 type FriendUsecase interface {
 	AddFriend(c context.Context, session string, userFiend *User) error
-	GetFriends(c context.Context, session string) ([]Friend, error)
+	GetFriends(c context.Context, session string) ([]User, error)
+	GetFollowers(ctx context.Context, session string) ([]User, error)
 }
 
 type FriendRepository interface {
-	GetFriends(ctx context.Context, userID int) ([]Friend, error)
+	GetFollowers(ctx context.Context, userID int) ([]Friend, error)
+	GetSubscriptions(ctx context.Context, userID int) ([]Friend, error)
 	SaveFriend(ctx context.Context, userID int, fiendID int) error
 }

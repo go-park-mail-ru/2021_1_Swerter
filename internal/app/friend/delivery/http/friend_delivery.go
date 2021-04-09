@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/pkg/utils/logger"
@@ -21,6 +22,7 @@ func NewFiendHandler(r *mux.Router, fu models.FriendUsecase, l *logger.Logger) {
 
 	r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
 	r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
+	r.HandleFunc("/user/followers", handler.getFollowers).Methods("GET", "OPTIONS")
 }
 
 func (fh *FriendHandler) getFriends(w http.ResponseWriter, r *http.Request) {
@@ -57,6 +59,39 @@ func (fh *FriendHandler) getFriends(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonUsers)
 }
 
+func (fh *FriendHandler) getFollowers(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	session, err := r.Cookie("session_id")
+	if err != nil || session == nil{
+		fh.logger.Error("no authorization")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	ctx := r.Context()
+	users, err := fh.FriendUsecase.GetFollowers(ctx, session.Value)
+	if err != nil {
+		fh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	jsonUsers, err := json.Marshal(users)
+	if err != nil {
+		fh.logger.Error("can`t marshal friends")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	fh.logger.Debug("send all friends")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonUsers)
+}
+
 func (fh *FriendHandler) addFriend(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == http.MethodOptions {
@@ -73,6 +108,7 @@ func (fh *FriendHandler) addFriend(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	user := &models.User{}
 	err = decoder.Decode(user)
+	fmt.Println(user)
 	if err != nil {
 		fh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusNoContent)
