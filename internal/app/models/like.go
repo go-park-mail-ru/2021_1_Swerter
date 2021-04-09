@@ -15,8 +15,7 @@ type Like struct {
 }
 
 type LikeUsecase interface {
-	AddLike(ctx context.Context, userID int, postID int) error
-	DelLike(ctx context.Context, userID int, postID int) error
+	ChangeLike(ctx context.Context, session string, postID int) error
 }
 
 type LikeRepository interface {
