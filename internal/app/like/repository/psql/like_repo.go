@@ -2,9 +2,9 @@ package psql
 
 import (
 	"context"
+	"errors"
 	"gorm.io/gorm"
 	"my-motivation/internal/app/models"
-	"my-motivation/internal/pkg/utils/hasher"
 )
 
 type LikeRepoPsql struct {
@@ -14,6 +14,7 @@ type LikeRepoPsql struct {
 func NewLikeRepoPsql(db *gorm.DB) *LikeRepoPsql {
 	return &LikeRepoPsql{DB: db}
 }
+
 func (lr *LikeRepoPsql) AddLike(ctx context.Context, userID int, postID int) error {
 	like := models.Like{
 		UserID: userID,
@@ -30,18 +31,25 @@ func (lr *LikeRepoPsql) AddLike(ctx context.Context, userID int, postID int) err
 }
 
 func (lr *LikeRepoPsql) DelLike(ctx context.Context, userID int, postID int) error {
-	//TODO::del like
+	like := models.Like{}
+	err := lr.DB.WithContext(ctx).Where("user_id = ? AND post_id = ?", userID, postID).Delete(&like).Error
+	if err != nil {
+		return err
+	}
+	//err = lr.DB.WithContext(ctx).Delete(&like).Error
+	//if err != nil {
+	//	return err
+	//}
 	return nil
 }
 
 func (lr *LikeRepoPsql) IsLiked(ctx context.Context, userID int, postID int) (bool, error) {
 	l := models.Like{}
 	err := lr.DB.WithContext(ctx).First(&l, "user_id = ? AND post_id = ?", userID, postID).Error
-	if err != nil {
-		return nil, err
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
 	}
-	//TODO:Проверка на найденность
-	if {
+	if err != nil {
 		return false, err
 	}
 	return true, nil

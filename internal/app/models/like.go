@@ -2,12 +2,9 @@ package models
 
 import (
 	"context"
-	"gorm.io/gorm"
 )
 
 type Like struct {
-	gorm.Model
-	ID     int  `json:"id" gorm:"primaryKey;autoIncrement:true"`
 	UserID int  `json:"userId"`
 	PostID int  `json:"postId"`
 	User   User `json:"user" gorm:"foreignKey:UserID"`

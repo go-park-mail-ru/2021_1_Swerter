@@ -23,7 +23,9 @@ import (
 	//_userRepo "my-motivation/internal/app/user/repository"
 	//_postRepo "my-motivation/internal/app/post/repository"
 	_sessionManager "my-motivation/internal/app/session/psql"
-
+	_likeUsecase "my-motivation/internal/app/like/usecase"
+	_likeHttpDelivery "my-motivation/internal/app/like/delivery/http"
+	_likeRepoPsql "my-motivation/internal/app/like/repository/psql"
 	"net/http"
 	"os"
 	"time"
@@ -51,19 +53,21 @@ func main() {
 	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
 	friendRepo := _friendRepo.NewFriendRepoPsql(getPostgres())
 	sessionManager := _sessionManager.NewSessionsManagerPsql(getPostgres())
-
+	likeRepo := _likeRepoPsql.NewLikeRepoPsql(getPostgres())
 
 	//usecase
 	timeoutContext := 2 * time.Second
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, timeoutContext, sessionManager)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager)
 	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
-
+	likeUsecase := _likeUsecase.NewLikeUsecase(likeRepo, timeoutContext, sessionManager)
 	//delivery
+
 	r := mux.NewRouter()
 	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
 	_postHttpDelivery.NewPostHandler(r, postUsecase, log)
 	_friendHttpDelivery.NewFiendHandler(r, friendUsecase, log)
+	_likeHttpDelivery.NewLikeHandler(r, likeUsecase, log)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
 
 	//index
