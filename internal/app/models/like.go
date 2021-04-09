@@ -22,5 +22,5 @@ type LikeRepository interface {
 	AddLike(ctx context.Context, userID int, postID int) error
 	DelLike(ctx context.Context, userID int, postID int) error
 	IsLiked(ctx context.Context, userID int, postID int) (bool, error)
-	GetLikes(ctx context.Context, userID int, postID int) (int, error)
+	GetLikes(ctx context.Context, postID int) (int, error)
 }

@@ -13,13 +13,6 @@ import (
 	"time"
 )
 
-//SaveUser(ctx context.Context, u *User) error
-//GetUserByLogin(ctx context.Context, login string) (*User, error)
-//GetUserById(ctx context.Context, id string) (*User, error)
-//GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
-//UpdateUser(ctx context.Context, oldUser *User, newUser *User) error
-//UploadAvatar(c context.Context, user *User, file multipart.File) error
-
 type UserRepoPsql struct {
 	DB *gorm.DB
 }
