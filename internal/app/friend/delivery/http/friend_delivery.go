@@ -21,6 +21,7 @@ func NewFiendHandler(r *mux.Router, fu models.FriendUsecase, l *logger.Logger) {
 	}
 
 	r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
+	r.HandleFunc("/user/friend/remove", handler.RemoveFriend).Methods("POST", "OPTIONS")
 	r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
 	r.HandleFunc("/user/followers", handler.getFollowers).Methods("GET", "OPTIONS")
 }
@@ -46,7 +47,6 @@ func (fh *FriendHandler) getFriends(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: не отправляь поля pass, login
 	jsonUsers, err := json.Marshal(users)
 	if err != nil {
 		fh.logger.Error("can`t marshal friends")
@@ -117,6 +117,40 @@ func (fh *FriendHandler) addFriend(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	err = fh.FriendUsecase.AddFriend(ctx, session.Value, user)
+	if err != nil {
+		fh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	fh.logger.Debug("Add new friend")
+	w.WriteHeader(http.StatusOK)
+}
+
+func (fh *FriendHandler) RemoveFriend(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	session, err := r.Cookie("session_id")
+	if err != nil || session == nil{
+		fh.logger.Error("no authorization")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	user := &models.User{}
+	err = decoder.Decode(user)
+	fmt.Println(user)
+	if err != nil {
+		fh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	ctx := r.Context()
+	err = fh.FriendUsecase.RemoveFriend(ctx, session.Value, user)
 	if err != nil {
 		fh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

@@ -16,26 +16,28 @@ type User struct {
 	Password    string `json:"password"`
 	Posts       []Post `json:"postsData" gorm:"foreignKey:AuthorId"`
 	Avatar      string `json:"avatar"`
+	IsNotified  bool   `json:"isNotified"`
 }
 
 func (u *User) Public() User {
 	return User{
-		ID: u.ID,
-		FirstName: u.FirstName,
-		LastName: u.LastName,
-		Avatar: u.Avatar,
-		Posts: u.Posts,
+		ID:         u.ID,
+		FirstName:  u.FirstName,
+		LastName:   u.LastName,
+		Avatar:     u.Avatar,
+		Posts:      u.Posts,
+		IsNotified: u.IsNotified,
 	}
 }
 
 func (u *User) Private() User {
 	return User{
-		ID: u.ID,
+		ID:        u.ID,
 		FirstName: u.FirstName,
-		LastName: u.LastName,
-		Avatar: u.Avatar,
-		Posts: u.Posts,
-		Login: u.Login,
+		LastName:  u.LastName,
+		Avatar:    u.Avatar,
+		Posts:     u.Posts,
+		Login:     u.Login,
 	}
 }
 

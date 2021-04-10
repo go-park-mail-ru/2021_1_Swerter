@@ -78,12 +78,15 @@ func (uu *FriendUsecase) GetFollowers(c context.Context, session string) ([]mode
 	onlyFollowers := []models.User{}
 	for _, follower := range userFollowers {
 		if !uu.isFriend(follower.UserID, userSubscribed) {
+			follower.User.IsNotified = follower.IsNotified
 			onlyFollowers = append(onlyFollowers, follower.User.Public())
 		}
 	}
 
 	return onlyFollowers, nil
 }
+
+
 
 func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
@@ -104,8 +107,42 @@ func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
+
+func (uu *FriendUsecase) RemoveFriend(c context.Context, session string, removeFriend *models.User) error {
+	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
+	defer cancel()
+
+	userID, err := uu.sessionManager.GetUserId(session)
+	if err != nil {
+		return err
+	}
+
+	friend, err := uu.friendRepo.GetFriend(ctx, removeFriend.ID, userID)
+	if err != nil || friend == nil {
+		return err
+	}
+
+	err = uu.friendRepo.FriendRequestNotified(ctx, *friend)
+	if err != nil {
+		return err
+	}
+	//delete this
+	//friend, _ = uu.friendRepo.GetFriend(ctx, removeFriend.ID, userID)
+	//fmt.Println(friend.IsNotified)
+
+	//todo затестить
+	err = uu.friendRepo.RemoveFriend(ctx, userID, removeFriend.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
 
 func (uu *FriendUsecase) isFriend(friendID int, users []models.Friend) bool {
 	for _, user := range users {
