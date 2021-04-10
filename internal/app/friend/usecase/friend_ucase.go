@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"my-motivation/internal/app/models"
 	_sessionManager "my-motivation/internal/app/session/psql"
 	"time"
@@ -101,6 +102,10 @@ func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend 
 	userFiend, err = uu.userRepo.GetUserById(ctx, userFiend.ID)
 	if err != nil || userFiend == nil {
 		return err
+	}
+
+	if userFiend.ID == userID {
+		return errors.New("can`t add to friend yourself")
 	}
 
 	err = uu.friendRepo.SaveFriend(ctx, userID, userFiend.ID)
