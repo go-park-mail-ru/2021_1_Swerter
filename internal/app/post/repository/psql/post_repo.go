@@ -80,7 +80,6 @@ func (urp *PostRepoPsql) GetUserPosts(ctx context.Context, u *models.User) ([]mo
 	return posts, nil
 }
 
-
 func (urp *PostRepoPsql) GetPost(ctx context.Context, id int) (*models.Post, error) {
 	return nil, nil
 }

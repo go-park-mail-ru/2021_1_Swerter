@@ -21,6 +21,7 @@ func NewFiendHandler(r *mux.Router, fu models.FriendUsecase, l *logger.Logger) {
 	}
 
 	r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
+	r.HandleFunc("/user/friend/search", handler.searchFriend).Methods("GET", "OPTIONS")
 	r.HandleFunc("/user/friend/remove", handler.RemoveFriend).Methods("POST", "OPTIONS")
 	r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
 	r.HandleFunc("/user/followers", handler.getFollowers).Methods("GET", "OPTIONS")
@@ -59,6 +60,47 @@ func (fh *FriendHandler) getFriends(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonUsers)
 }
 
+func (fh *FriendHandler) searchFriend(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	if r.Method == http.MethodOptions {
+		return
+	}
+
+	session, err := r.Cookie("session_id")
+	if err != nil || session == nil{
+		fh.logger.Error("no authorization")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	user := &models.User{}
+	err = decoder.Decode(user)
+	if err != nil {
+		fh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
+	ctx := r.Context()
+	users, err := fh.FriendUsecase.SearchFriend(ctx, session.Value, user)
+	if err != nil {
+		fh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	jsonUsers, err := json.Marshal(users)
+	if err != nil {
+		fh.logger.Error("can`t marshal friends")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonUsers)
+}
+
 func (fh *FriendHandler) getFollowers(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.Method == http.MethodOptions {
@@ -87,7 +129,7 @@ func (fh *FriendHandler) getFollowers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fh.logger.Debug("send all friends")
+	fh.logger.Debug("send all followers")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonUsers)
 }
@@ -108,7 +150,6 @@ func (fh *FriendHandler) addFriend(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	user := &models.User{}
 	err = decoder.Decode(user)
-	fmt.Println(user)
 	if err != nil {
 		fh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusNoContent)

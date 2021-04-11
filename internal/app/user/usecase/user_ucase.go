@@ -24,58 +24,11 @@ func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Du
 	}
 }
 
-func (uu *UserUsecase) GetFriends(c context.Context, session string) (map[string]*models.User, error) {
-	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
-	defer cancel()
-
-	userId, err := uu.sessionManager.GetUserId(session)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := uu.userRepo.GetUserById(ctx, userId)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := uu.userRepo.GetFriends(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
-}
-
 func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 
 	err := uu.userRepo.SaveUser(ctx, u)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (uu *UserUsecase) AddFriend(c context.Context, session string, userFiend *models.User) error {
-	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
-	defer cancel()
-
-	userId, err := uu.sessionManager.GetUserId(session)
-	if err != nil {
-		return err
-	}
-
-	user, err := uu.userRepo.GetUserById(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	userFiend, err = uu.userRepo.GetUserById(ctx, userFiend.ID)
-	if err != nil {
-		return err
-	}
-
-	err = uu.userRepo.SaveFriend(ctx, user, userFiend)
 	if err != nil {
 		return err
 	}

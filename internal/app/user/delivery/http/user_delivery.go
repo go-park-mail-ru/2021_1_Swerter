@@ -26,82 +26,10 @@ func NewUserHandler(r *mux.Router, uu models.UserUsecase, l *logger.Logger) {
 	r.HandleFunc("/profile", handler.userProfile).Methods("GET", "POST", "OPTIONS")
 	r.HandleFunc("/profile/{userID}", handler.getUserProfileByID).Methods("GET", "OPTIONS")
 
-	////user
-	//r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
-	//r.HandleFunc("/user/friends", handler.getFriends).Methods("GET", "OPTIONS")
-
 	//auth
 	r.HandleFunc("/login", handler.login).Methods("POST", "OPTIONS")
 	r.HandleFunc("/logout", handler.logout).Methods("POST", "OPTIONS")
 	r.HandleFunc("/register", handler.register).Methods("POST", "OPTIONS")
-}
-
-func (uh *UserHandler) getFriends(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	if r.Method == http.MethodOptions {
-		return
-	}
-
-	session, err := r.Cookie("session_id")
-	if err != nil || session == nil{
-		uh.logger.Error("no authorization")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	ctx := r.Context()
-	users, err := uh.UserUsecase.GetFriends(ctx, session.Value)
-	if err != nil {
-		uh.logger.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	//TODO: не отправляь поля pass, login
-	jsonUsers, err := json.Marshal(users)
-	if err != nil {
-		uh.logger.Error("can`t marshal friends")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	uh.logger.Debug("send all friends")
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonUsers)
-}
-
-func (uh *UserHandler) addFriend(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	if r.Method == http.MethodOptions {
-		return
-	}
-
-	session, err := r.Cookie("session_id")
-	if err != nil || session == nil{
-		uh.logger.Error("no authorization")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	decoder := json.NewDecoder(r.Body)
-	user := &models.User{}
-	err = decoder.Decode(user)
-	fmt.Println(user)
-	if err != nil {
-		uh.logger.Error(err.Error())
-		w.WriteHeader(http.StatusNoContent)
-		return
-	}
-
-	ctx := r.Context()
-	err = uh.UserUsecase.AddFriend(ctx, session.Value, user)
-	if err != nil {
-		uh.logger.Error(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	uh.logger.Debug("Add new friend")
-	w.WriteHeader(http.StatusOK)
 }
 
 func (uh *UserHandler) uploadAvatar(w http.ResponseWriter, r *http.Request) {

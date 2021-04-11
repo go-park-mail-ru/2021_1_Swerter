@@ -87,9 +87,7 @@ func (uu *FriendUsecase) GetFollowers(c context.Context, session string) ([]mode
 	return onlyFollowers, nil
 }
 
-
-
-func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend *models.User) error {
+func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFriend *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 
@@ -99,21 +97,53 @@ func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFiend 
 	}
 
 	//Проверяем добавляемого друга на существование
-	userFiend, err = uu.userRepo.GetUserById(ctx, userFiend.ID)
-	if err != nil || userFiend == nil {
+	userFriend, err = uu.userRepo.GetUserById(ctx, userFriend.ID)
+	if err != nil || userFriend == nil {
 		return err
 	}
 
-	if userFiend.ID == userID {
+	if userFriend.ID == userID {
 		return errors.New("can`t add to friend yourself")
 	}
 
-	err = uu.friendRepo.SaveFriend(ctx, userID, userFiend.ID)
+	err = uu.friendRepo.SaveFriend(ctx, userID, userFriend.ID)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (uu *FriendUsecase) SearchFriend(c context.Context, session string, userPattern *models.User) ([]models.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
+	defer cancel()
+
+	if userPattern.FirstName == "" && userPattern.LastName == ""{
+		return nil, errors.New("empty pattern. can`t find users")
+	}
+
+	if userPattern.FirstName != "" && userPattern.LastName == "" {
+		users, err := uu.userRepo.SearchUsersByName(ctx, userPattern.FirstName)
+		if err != nil  {
+			return nil, err
+		}
+
+		if len(users) == 0 {
+			users, err = uu.userRepo.SearchUsersBySurname(ctx, userPattern.FirstName)
+		}
+		if err != nil  {
+			return nil, err
+		}
+
+		return users, nil
+	}
+
+	users, err := uu.userRepo.SearchUsersByFullName(ctx, userPattern.FirstName, userPattern.LastName)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (uu *FriendUsecase) RemoveFriend(c context.Context, session string, removeFriend *models.User) error {

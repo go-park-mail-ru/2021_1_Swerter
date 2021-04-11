@@ -20,6 +20,7 @@ type FriendUsecase interface {
 	GetFriends(c context.Context, session string) ([]User, error)
 	GetFollowers(ctx context.Context, session string) ([]User, error)
 	RemoveFriend(c context.Context, session string, removeFriend *User) error
+	SearchFriend(c context.Context, session string, userPattern *User) ([]User, error)
 }
 
 type FriendRepository interface {
