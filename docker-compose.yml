@@ -1,0 +1,22 @@
+version: '3'
+
+#docker-compose up в корне
+
+#Если поменяли креды, то необходимо зачистить volume
+#sudo rm -rf ./data/postgres/
+#docker-compose rm -fv
+
+#Подробнее
+#https://github.com/docker-library/postgres/issues/203
+
+services:
+  postgres:
+    image: postgres:13.2
+    environment:
+      POSTGRES_USER: vk
+      POSTGRES_PASSWORD: vk
+      POSTGRES_DB: vk
+    ports:
+      - '5400:5432' #Проверьте что ваш порт свободен, первый порт(5400) - внешний(ваш)
+    volumes:
+      - './_postgres/:/docker-entrypoint-initdb.d/'
