@@ -118,12 +118,20 @@ func (uu *FriendUsecase) SearchFriend(c context.Context, session string, userPat
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 
+	var users []models.User
+	var err error
+
+	userID, err := uu.sessionManager.GetUserId(session)
+	if err != nil {
+		return nil, err
+	}
+
 	if userPattern.FirstName == "" && userPattern.LastName == ""{
 		return nil, errors.New("empty pattern. can`t find users")
 	}
 
 	if userPattern.FirstName != "" && userPattern.LastName == "" {
-		users, err := uu.userRepo.SearchUsersByName(ctx, userPattern.FirstName)
+		users, err = uu.userRepo.SearchUsersByName(ctx, userPattern.FirstName)
 		if err != nil  {
 			return nil, err
 		}
@@ -134,13 +142,21 @@ func (uu *FriendUsecase) SearchFriend(c context.Context, session string, userPat
 		if err != nil  {
 			return nil, err
 		}
-
-		return users, nil
+	} else {
+		users, err = uu.userRepo.SearchUsersByFullName(ctx, userPattern.FirstName, userPattern.LastName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	users, err := uu.userRepo.SearchUsersByFullName(ctx, userPattern.FirstName, userPattern.LastName)
-	if err != nil {
-		return nil, err
+	subscriptions, err := uu.friendRepo.GetSubscriptions(ctx, userID)
+
+	for i, _ := range users {
+		if uu.isFriend(users[i].ID, subscriptions) {
+			users[i].IsFriend = true
+		} else {
+			users[i].IsFriend = false
+		}
 	}
 
 	return users, nil

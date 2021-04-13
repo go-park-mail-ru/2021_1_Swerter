@@ -73,9 +73,10 @@ func (fh *FriendHandler) searchFriend(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	decoder := json.NewDecoder(r.Body)
-	user := &models.User{}
-	err = decoder.Decode(user)
+	v := r.URL.Query()
+	user := models.User{}
+	user.FirstName = v.Get("first_name")
+	user.LastName = v.Get("last_name")
 	if err != nil {
 		fh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusNoContent)
@@ -83,7 +84,7 @@ func (fh *FriendHandler) searchFriend(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	users, err := fh.FriendUsecase.SearchFriend(ctx, session.Value, user)
+	users, err := fh.FriendUsecase.SearchFriend(ctx, session.Value, &user)
 	if err != nil {
 		fh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

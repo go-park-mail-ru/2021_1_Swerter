@@ -17,6 +17,7 @@ type User struct {
 	Posts       []Post `json:"postsData" gorm:"foreignKey:AuthorId"`
 	Avatar      string `json:"avatar"`
 	IsNotified  bool   `json:"isNotified"`
+	IsFriend    bool   `json:"isFriend"`
 }
 
 func (u *User) Public() User {
@@ -27,6 +28,7 @@ func (u *User) Public() User {
 		Avatar:     u.Avatar,
 		Posts:      u.Posts,
 		IsNotified: u.IsNotified,
+		IsFriend:   u.IsFriend,
 	}
 }
 
