@@ -48,7 +48,7 @@ func (ur *PostRepo) storeImg(ctx context.Context, newPost *models.Post, file mul
 
 	defer file.Close()
 	localImg, err := os.OpenFile("../../static/posts/"+genFileName, os.O_WRONLY|os.O_CREATE, 0666)
-	newPost.UrlImg = "/static/posts/" + genFileName
+	newPost.UrlImgs = "/static/posts/" + genFileName
 	if err != nil {
 		fmt.Printf("Cant create file\n")
 		return err

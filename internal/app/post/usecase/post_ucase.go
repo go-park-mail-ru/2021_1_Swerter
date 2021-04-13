@@ -26,7 +26,7 @@ func NewPostUsecase(ur models.UserRepository, pr models.PostsRepository, timeout
 	}
 }
 
-func (pu *PostUsecase) SavePost(c context.Context, session string, imgFile multipart.File, fileHandler *multipart.FileHeader, post *models.Post) error {
+func (pu *PostUsecase) SavePost(c context.Context, session string, fileHandlers map[string][]*multipart.FileHeader, post *models.Post) error {
 	userId, err := pu.sessionManager.GetUserId(session)
 	if err != nil {
 		return err
@@ -40,7 +40,7 @@ func (pu *PostUsecase) SavePost(c context.Context, session string, imgFile multi
 		return err
 	}
 
-	err = pu.PostRepo.SavePost(ctx, post, userOwner, imgFile, fileHandler)
+	err = pu.PostRepo.SavePost(ctx, post, userOwner, fileHandlers)
 	if err != nil {
 		return err
 	}
