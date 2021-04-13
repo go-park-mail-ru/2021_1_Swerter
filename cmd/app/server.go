@@ -39,7 +39,7 @@ func getPostgres() *gorm.DB {
 		log.Fatal(err)
 	}
 	//Только во ремя разработки автомигрете
-	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{})
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{})
 	return db
 }
 
