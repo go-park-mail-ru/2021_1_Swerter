@@ -62,13 +62,13 @@ func (urp *PostRepoPsql) storeImg(ctx context.Context, newPost *models.Post, fil
 
 func (urp *PostRepoPsql) GetPosts(ctx context.Context) ([]models.Post, error) {
 	var posts []models.Post
-	err := urp.DB.WithContext(ctx).Find(&posts).Error
+	err := urp.DB.WithContext(ctx).Preload("UrlImgs").Find(&posts).Error
 	if err != nil {
 		return nil, err
 	}
 	for i, _ := range posts {
 		u := models.User{}
-		err = urp.DB.WithContext(ctx).Preload("UrlImgs").First(&u, "id = ?", posts[i].AuthorId).Error
+		err = urp.DB.WithContext(ctx).First(&u, "id = ?", posts[i].AuthorId).Error
 		if err != nil {
 			return nil, err
 		}
