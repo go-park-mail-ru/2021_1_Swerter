@@ -11,14 +11,16 @@ import (
 type UserUsecase struct {
 	userRepo       models.UserRepository
 	postRepo       models.PostsRepository
+	likeRepo       models.LikeRepository
 	contextTimeout time.Duration
 	sessionManager *_sessionManager.SessionsManagerPsql
 }
 
-func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql) models.UserUsecase {
+func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql, lr models.LikeRepository) models.UserUsecase {
 	return &UserUsecase{
 		userRepo:       u,
 		postRepo:       p,
+		likeRepo:       lr,
 		contextTimeout: t,
 		sessionManager: sm,
 	}
@@ -90,6 +92,21 @@ func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, err
 		return nil, err
 	}
 	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
+
+	//Тут понять лайкнут ли и сколько всего лайков
+	for i, _ := range user.Posts {
+		isLiked, err := uu.likeRepo.IsLiked(ctx, user.ID, user.Posts[i].ID)
+		if err != nil {
+			return nil, err
+		}
+		user.Posts[i].Liked = isLiked
+		likeCounter, err := uu.likeRepo.GetLikes(ctx, user.Posts[i].ID)
+		if err != nil {
+			return nil, err
+		}
+		user.Posts[i].LikeCounter = likeCounter
+	}
+
 	if err != nil {
 		return nil, err
 	}

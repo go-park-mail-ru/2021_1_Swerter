@@ -2,7 +2,6 @@ package psql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"gorm.io/gorm"
 	"io"
@@ -21,43 +20,51 @@ func NewPostRepoPsql(db *gorm.DB) *PostRepoPsql {
 	return &PostRepoPsql{DB: db}
 }
 
-func (urp *PostRepoPsql) SavePost(ctx context.Context, newPost *models.Post, userOwner *models.User, file multipart.File, fileHandler *multipart.FileHeader) error {
+func (urp *PostRepoPsql) SavePost(ctx context.Context, newPost *models.Post, userOwner *models.User, fileHandlers map[string][]*multipart.FileHeader) error {
 	newPost.AuthorId = userOwner.ID
-	urp.storeImg(ctx, newPost, file, fileHandler)
 	err := urp.DB.Model(userOwner).Association("Posts").Append(newPost)
 	//urp.DB.Session(&gorm.Session{FullSaveAssociations: true}).Updates(userOwner)
 	if err != nil {
 		return err
 	}
+	urp.storeImg(ctx, newPost, fileHandlers)
 	fmt.Println("Post added")
 	return nil
 }
 
-func (urp *PostRepoPsql) storeImg(ctx context.Context, newPost *models.Post, file multipart.File, fileHandler *multipart.FileHeader) error {
-	if file == nil || fileHandler.Filename == "" {
-		return errors.New("empty img file")
-	}
-	t := time.Now()
-	salt := fmt.Sprintf(t.Format(time.RFC3339))
-	genFileName := hasher.Hash(fileHandler.Filename + salt)
+func (urp *PostRepoPsql) storeImg(ctx context.Context, newPost *models.Post, fileHandlers map[string][]*multipart.FileHeader) error {
 
-	defer file.Close()
-	localImg, err := os.OpenFile("../../static/posts/"+genFileName, os.O_WRONLY|os.O_CREATE, 0666)
-	newPost.UrlImg = "/static/posts/" + genFileName
-	if err != nil {
-		return err
+	for name, fileHeader := range fileHandlers {
+		newImg := models.Img{}
+		file, err := fileHeader[0].Open()
+		if err != nil {
+			return err
+		}
+		t := time.Now()
+		salt := fmt.Sprintf(t.Format(time.RFC3339))
+		genFileName := hasher.Hash(name + salt)
+		defer file.Close()
+		localImg, err := os.OpenFile("../../static/posts/"+genFileName + ".png", os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			return err
+		}
+		newImg.Url = "/static/posts/" + genFileName + ".png"
+		newImg.PostID = newPost.ID
+		err = urp.DB.Create(&newImg).Error
+		if err != nil {
+			return err
+		}
+		defer localImg.Close()
+		_, _ = io.Copy(localImg, file)
 	}
-
-	defer localImg.Close()
-	_, _ = io.Copy(localImg, file)
 	return nil
 }
 
 func (urp *PostRepoPsql) GetPosts(ctx context.Context) ([]models.Post, error) {
 	var posts []models.Post
-	err := urp.DB.WithContext(ctx).Find(&posts).Error
+	err := urp.DB.WithContext(ctx).Preload("UrlImgs").Find(&posts).Error
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	for i, _ := range posts {
 		u := models.User{}
@@ -73,9 +80,9 @@ func (urp *PostRepoPsql) GetPosts(ctx context.Context) ([]models.Post, error) {
 
 func (urp *PostRepoPsql) GetUserPosts(ctx context.Context, u *models.User) ([]models.Post, error) {
 	var posts []models.Post
-	err := urp.DB.WithContext(ctx).Where("author_id = ?", u.ID).Find(&posts).Error
+	err := urp.DB.WithContext(ctx).Preload("UrlImgs").Where("author_id = ?", u.ID).Find(&posts).Error
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	return posts, nil
 }
@@ -83,5 +90,3 @@ func (urp *PostRepoPsql) GetUserPosts(ctx context.Context, u *models.User) ([]mo
 func (urp *PostRepoPsql) GetPost(ctx context.Context, id int) (*models.Post, error) {
 	return nil, nil
 }
-
-

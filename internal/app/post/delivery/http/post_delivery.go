@@ -52,12 +52,20 @@ func (ph *PostHandler) addPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imgFile, fileHandler, err := r.FormFile("imgContent")
-	newPost := models.Post{}
-	newPost.Date = r.FormValue("date")
-	newPost.Text = r.FormValue("textPost")
 
-	err = ph.PostUsecase.SavePost(r.Context(), session.Value, imgFile, fileHandler, &newPost)
+	mr, err := r.MultipartReader()
+	//Можно ли так
+	form, err := mr.ReadForm(100000)
+	if err != nil {
+		ph.logger.Error("no files")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+	newPost := models.Post{}
+	newPost.Date = form.Value["date"][0]
+	newPost.Text = form.Value["textPost"][0]
+
+	err = ph.PostUsecase.SavePost(r.Context(), session.Value, form.File, &newPost)
 
 	if err != nil {
 		ph.logger.Error(err.Error())
