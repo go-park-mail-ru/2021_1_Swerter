@@ -10,6 +10,16 @@ version: '3'
 #https://github.com/docker-library/postgres/issues/203
 
 services:
+  server:
+    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - api:/usr/src/app/
+    depends_on:
+      - postgres
+
   postgres:
     image: postgres:13.2
     environment:
