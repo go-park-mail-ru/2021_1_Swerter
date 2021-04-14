@@ -57,7 +57,6 @@ func (pu *PostUsecase) GetPosts(c context.Context, session string) ([]models.Pos
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()
 
-	//TODO: доступ к страницам для авторизованных пользователей вынести в мидлвару
 	_, err = pu.UserRepo.GetUserById(ctx, userId)
 	if err != nil {
 		return nil, err

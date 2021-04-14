@@ -41,17 +41,19 @@ func getPostgres() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+<<<<<<< HEAD
 	//Только во ремя разработки автомигрете
 	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{}, models.Album{}, models.AlbumImg{})
+=======
+
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{})
+>>>>>>> c4aef9396280486fc900272d2af6fda22c3086f3
 	return db
 }
 
 
 func main() {
-	//logger
 	log := logger.NewLogger()
-
-	//repo
 	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
 	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
 	friendRepo := _friendRepo.NewFriendRepoPsql(getPostgres())
@@ -59,14 +61,12 @@ func main() {
 	likeRepo := _likeRepoPsql.NewLikeRepoPsql(getPostgres())
 	albumRepo := _albumRepo.NewAlbumRepoPsql(getPostgres())
 
-	//usecase
 	timeoutContext := 2 * time.Second
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, albumRepo, timeoutContext, sessionManager, likeRepo)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
 	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
 	likeUsecase := _likeUsecase.NewLikeUsecase(likeRepo, timeoutContext, sessionManager)
 	albumUsecase := _albumUsecase.NewAlbumUsecase(userRepo, albumRepo, timeoutContext, sessionManager)
-	//delivery
 
 	r := mux.NewRouter()
 	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
@@ -76,12 +76,10 @@ func main() {
 	_albumDelivery.NewAlbumHandler(r, albumUsecase, log)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
 
-	//index
 	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte("Kumusta Higala"))
 	})
 
-	//middleware
 	handler := middleware.CORS(r)
 	handler = middleware.LoggingMiddleware(handler, log)
 

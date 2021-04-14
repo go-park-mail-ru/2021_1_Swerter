@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/pkg/utils/logger"
@@ -19,7 +18,7 @@ func NewFiendHandler(r *mux.Router, fu models.FriendUsecase, l *logger.Logger) {
 		FriendUsecase: fu,
 		logger:      l,
 	}
-	//Зачем user в url
+
 	r.HandleFunc("/user/friend/add", handler.addFriend).Methods("POST", "OPTIONS")
 	r.HandleFunc("/user/friend/search", handler.searchFriend).Methods("GET", "OPTIONS")
 	r.HandleFunc("/user/friend/remove", handler.RemoveFriend).Methods("POST", "OPTIONS")
@@ -184,7 +183,6 @@ func (fh *FriendHandler) RemoveFriend(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	user := &models.User{}
 	err = decoder.Decode(user)
-	fmt.Println(user)
 	if err != nil {
 		fh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusNoContent)

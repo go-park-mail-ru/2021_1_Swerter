@@ -54,7 +54,6 @@ func (ph *PostHandler) addPost(w http.ResponseWriter, r *http.Request) {
 
 
 	mr, err := r.MultipartReader()
-	//Можно ли так
 	form, err := mr.ReadForm(100000)
 	if err != nil {
 		ph.logger.Error("no files")

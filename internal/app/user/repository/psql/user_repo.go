@@ -23,7 +23,6 @@ func NewUserRepoPsql(db *gorm.DB) *UserRepoPsql {
 
 func (urp *UserRepoPsql) SaveUser(ctx context.Context, u *models.User) error {
 	u.Password = hasher.Hash(u.Password)
-	//u.Posts = []models.Post{{Text: "hello"},{Text: "world"}}
 	err := urp.DB.WithContext(ctx).Create(u).Error
 	if err != nil {
 		return err

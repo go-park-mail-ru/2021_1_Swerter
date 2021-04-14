@@ -6,12 +6,11 @@ import (
 	"mime/multipart"
 )
 
-//TODO: validate
 type Post struct {
 	gorm.Model
 	ID          int      `gorm:"primaryKey;autoIncrement:true"`
-	Author      string   `json:"postCreator"` //устанавливаю при подзгрузке на фронте, если отдаю в профиль
-	AuthorAva   string   `json:"imgAvatar"`   //устанавливаю при подзгрузке на фронте, если отдаю в профиль
+	Author      string   `json:"postCreator"`
+	AuthorAva   string   `json:"imgAvatar"`
 	AuthorId    int      `json:"postCreatorId"`
 	Text        string   `json:"textPost"`
 	UrlImgs     []Img 	 `json:"imgContent" gorm:"foreignKey:PostID"`
