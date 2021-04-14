@@ -37,7 +37,6 @@ func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 	return nil
 }
 
-//пока не используется на уровне usecase
 func (uu *UserUsecase) GetPrivateUser(c context.Context, login string, password string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
@@ -93,7 +92,6 @@ func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, err
 	}
 	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
 
-	//Тут понять лайкнут ли и сколько всего лайков
 	for i, _ := range user.Posts {
 		isLiked, err := uu.likeRepo.IsLiked(ctx, user.ID, user.Posts[i].ID)
 		if err != nil {
@@ -144,7 +142,6 @@ func (uu *UserUsecase) UploadAvatar(c context.Context, sessionId string, file mu
 	return nil
 }
 
-//Для логина и пароля
 func (uu *UserUsecase) UpdateSecureUser(ctx context.Context, userId int, login string, pass string, newUser *models.User) error {
 	return nil
 }

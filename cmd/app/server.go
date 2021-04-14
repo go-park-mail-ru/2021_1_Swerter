@@ -38,30 +38,25 @@ func getPostgres() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//Только во ремя разработки автомигрете
+
 	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{})
 	return db
 }
 
 
 func main() {
-	//logger
 	log := logger.NewLogger()
-
-	//repo
 	userRepo := _userRepoPsql.NewUserRepoPsql(getPostgres())
 	postRepo := _postRepo.NewPostRepoPsql(getPostgres())
 	friendRepo := _friendRepo.NewFriendRepoPsql(getPostgres())
 	sessionManager := _sessionManager.NewSessionsManagerPsql(getPostgres())
 	likeRepo := _likeRepoPsql.NewLikeRepoPsql(getPostgres())
 
-	//usecase
 	timeoutContext := 2 * time.Second
 	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
 	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
 	likeUsecase := _likeUsecase.NewLikeUsecase(likeRepo, timeoutContext, sessionManager)
-	//delivery
 
 	r := mux.NewRouter()
 	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
@@ -70,12 +65,10 @@ func main() {
 	_likeHttpDelivery.NewLikeHandler(r, likeUsecase, log)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
 
-	//index
 	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		writer.Write([]byte("Kumusta Higala"))
 	})
 
-	//middleware
 	handler := middleware.CORS(r)
 	handler = middleware.LoggingMiddleware(handler, log)
 

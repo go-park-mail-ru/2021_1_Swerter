@@ -36,10 +36,6 @@ func (lr *LikeRepoPsql) DelLike(ctx context.Context, userID int, postID int) err
 	if err != nil {
 		return err
 	}
-	//err = lr.DB.WithContext(ctx).Delete(&like).Error
-	//if err != nil {
-	//	return err
-	//}
 	return nil
 }
 

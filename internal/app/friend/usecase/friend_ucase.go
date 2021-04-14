@@ -33,13 +33,11 @@ func (uu *FriendUsecase) GetFriends(c context.Context, session string) ([]models
 		return nil, err
 	}
 
-	//На кого подписан
 	userSubscribed, err := uu.friendRepo.GetSubscriptions(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	//кто подписан на user
 	userFollowers, err := uu.friendRepo.GetFollowers(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -64,13 +62,11 @@ func (uu *FriendUsecase) GetFollowers(c context.Context, session string) ([]mode
 		return nil, err
 	}
 
-	//На кого подписан
 	userSubscribed, err := uu.friendRepo.GetSubscriptions(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	//кто подписан на тебя
 	userFollowers, err := uu.friendRepo.GetFollowers(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -96,7 +92,6 @@ func (uu *FriendUsecase) AddFriend(c context.Context, session string, userFriend
 		return err
 	}
 
-	//Проверяем добавляемого друга на существование
 	userFriend, err = uu.userRepo.GetUserById(ctx, userFriend.ID)
 	if err != nil || userFriend == nil {
 		return err
@@ -180,11 +175,7 @@ func (uu *FriendUsecase) RemoveFriend(c context.Context, session string, removeF
 	if err != nil {
 		return err
 	}
-	//delete this
-	//friend, _ = uu.friendRepo.GetFriend(ctx, removeFriend.ID, userID)
-	//fmt.Println(friend.IsNotified)
 
-	//todo затестить
 	err = uu.friendRepo.RemoveFriend(ctx, userID, removeFriend.ID)
 	if err != nil {
 		return err

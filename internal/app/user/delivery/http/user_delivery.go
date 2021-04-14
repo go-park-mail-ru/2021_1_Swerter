@@ -21,12 +21,11 @@ func NewUserHandler(r *mux.Router, uu models.UserUsecase, l *logger.Logger) {
 		UserUsecase: uu,
 		logger:      l,
 	}
-	//user
+
 	r.HandleFunc("/profile/loadImg", handler.uploadAvatar).Methods("POST", "OPTIONS")
 	r.HandleFunc("/profile", handler.userProfile).Methods("GET", "POST", "OPTIONS")
 	r.HandleFunc("/profile/{userID}", handler.getUserProfileByID).Methods("GET", "OPTIONS")
 
-	//auth
 	r.HandleFunc("/login", handler.login).Methods("POST", "OPTIONS")
 	r.HandleFunc("/logout", handler.logout).Methods("POST", "OPTIONS")
 	r.HandleFunc("/register", handler.register).Methods("POST", "OPTIONS")

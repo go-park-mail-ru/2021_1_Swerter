@@ -28,7 +28,6 @@ func (urp *PostRepoPsql) SavePost(ctx context.Context, newPost *models.Post, use
 		return err
 	}
 	urp.storeImg(ctx, newPost, fileHandlers)
-	fmt.Println("Post added")
 	return nil
 }
 
