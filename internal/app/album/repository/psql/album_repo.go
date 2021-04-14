@@ -44,7 +44,7 @@ func (arp *AlbumRepoPsql) storeImg(ctx context.Context, newAlbum *models.Album, 
 		salt := fmt.Sprintf(t.Format(time.RFC3339))
 		genFileName := hasher.Hash(name + salt)
 		defer file.Close()
-		localImg, err := os.OpenFile("../../static/albums/"+ genFileName + ".png", os.O_WRONLY|os.O_CREATE, 0666)
+		localImg, err := os.OpenFile("./static/albums/"+ genFileName + ".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			return err
 		}

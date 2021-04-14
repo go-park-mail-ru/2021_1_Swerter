@@ -74,7 +74,7 @@ func main() {
 	_friendHttpDelivery.NewFiendHandler(r, friendUsecase, log)
 	_likeHttpDelivery.NewLikeHandler(r, likeUsecase, log)
 	_albumDelivery.NewAlbumHandler(r, albumUsecase, log)
-	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
+	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static/"))))
 
 	//index
 	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {

@@ -44,7 +44,7 @@ func (urp *PostRepoPsql) storeImg(ctx context.Context, newPost *models.Post, fil
 		salt := fmt.Sprintf(t.Format(time.RFC3339))
 		genFileName := hasher.Hash(name + salt)
 		defer file.Close()
-		localImg, err := os.OpenFile("../../static/posts/"+genFileName + ".png", os.O_WRONLY|os.O_CREATE, 0666)
+		localImg, err := os.OpenFile("./static/posts/"+genFileName + ".png", os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			return err
 		}
