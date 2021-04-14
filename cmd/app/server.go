@@ -33,7 +33,7 @@ import (
 
 
 func getPostgres() *gorm.DB {
-	dsn := "host=localhost user=vk password=vk dbname=vk port=5400 sslmode=disable"
+	dsn := os.Getenv("DATABASE_URL")
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(err)
