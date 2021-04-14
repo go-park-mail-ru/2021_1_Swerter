@@ -23,7 +23,6 @@ func NewUserRepoPsql(db *gorm.DB) *UserRepoPsql {
 
 func (urp *UserRepoPsql) SaveUser(ctx context.Context, u *models.User) error {
 	u.Password = hasher.Hash(u.Password)
-	//u.Posts = []models.Post{{Text: "hello"},{Text: "world"}}
 	err := urp.DB.WithContext(ctx).Create(u).Error
 	if err != nil {
 		return err
@@ -94,20 +93,35 @@ func (urp *UserRepoPsql) UploadAvatar(ctx context.Context, u *models.User, file 
 	return nil
 }
 
-func (urp *UserRepoPsql) GetFriends(ctx context.Context, user *models.User) (map[string]*models.User, error) {
-	//if user == nil {
-	//	return nil, errors.New("empty pointer to user")
-	//}
-	//
-	//users := ur.Users[user.Login].Friends
-	return nil, nil
+
+func (urp *UserRepoPsql) SearchUsersByName(ctx context.Context, userName string) ([]models.User, error) {
+	users := []models.User{}
+	userName += "%"
+	err := urp.DB.WithContext(ctx).Where("first_name LIKE ?", userName).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
-func (urp *UserRepoPsql) SaveFriend(ctx context.Context, user *models.User, userFiend *models.User) error {
-	//if user == nil || userFiend == nil {
-	//	return errors.New("empty pointer to user")
-	//}
-	//
-	//ur.Users[user.Login].Friends[userFiend.Login] = userFiend
-	return nil
+func (urp *UserRepoPsql) SearchUsersBySurname(ctx context.Context, userSurname string) ([]models.User, error) {
+	users := []models.User{}
+	userSurname += "%"
+	err := urp.DB.WithContext(ctx).Where("last_name LIKE ?", userSurname).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }
+
+func (urp *UserRepoPsql) SearchUsersByFullName(ctx context.Context, userName string, userSurname string) ([]models.User, error) {
+	users := []models.User{}
+	userName += "%"
+	userSurname += "%"
+	err := urp.DB.WithContext(ctx).Where("first_name LIKE ? AND last_name LIKE ?", userName, userSurname).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+

@@ -26,27 +26,6 @@ func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Du
 	}
 }
 
-func (uu *UserUsecase) GetFriends(c context.Context, session string) (map[string]*models.User, error) {
-	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
-	defer cancel()
-
-	userId, err := uu.sessionManager.GetUserId(session)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := uu.userRepo.GetUserById(ctx, userId)
-	if err != nil {
-		return nil, err
-	}
-
-	users, err := uu.userRepo.GetFriends(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
-}
-
 func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
@@ -58,33 +37,6 @@ func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 	return nil
 }
 
-func (uu *UserUsecase) AddFriend(c context.Context, session string, userFiend *models.User) error {
-	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
-	defer cancel()
-
-	userId, err := uu.sessionManager.GetUserId(session)
-	if err != nil {
-		return err
-	}
-
-	user, err := uu.userRepo.GetUserById(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	userFiend, err = uu.userRepo.GetUserById(ctx, userFiend.ID)
-	if err != nil {
-		return err
-	}
-
-	err = uu.userRepo.SaveFriend(ctx, user, userFiend)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-//пока не используется на уровне usecase
 func (uu *UserUsecase) GetPrivateUser(c context.Context, login string, password string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
@@ -140,7 +92,6 @@ func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, err
 	}
 	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
 
-	//Тут понять лайкнут ли и сколько всего лайков
 	for i, _ := range user.Posts {
 		isLiked, err := uu.likeRepo.IsLiked(ctx, user.ID, user.Posts[i].ID)
 		if err != nil {
@@ -191,7 +142,6 @@ func (uu *UserUsecase) UploadAvatar(c context.Context, sessionId string, file mu
 	return nil
 }
 
-//Для логина и пароля
 func (uu *UserUsecase) UpdateSecureUser(ctx context.Context, userId int, login string, pass string, newUser *models.User) error {
 	return nil
 }
