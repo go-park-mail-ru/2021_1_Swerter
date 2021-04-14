@@ -11,15 +11,17 @@ import (
 type UserUsecase struct {
 	userRepo       models.UserRepository
 	postRepo       models.PostsRepository
+	albumRepo      models.AlbumRepository
 	likeRepo       models.LikeRepository
 	contextTimeout time.Duration
 	sessionManager *_sessionManager.SessionsManagerPsql
 }
 
-func NewUserUsecase(u models.UserRepository, p models.PostsRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql, lr models.LikeRepository) models.UserUsecase {
+func NewUserUsecase(u models.UserRepository, p models.PostsRepository, a models.AlbumRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql, lr models.LikeRepository) models.UserUsecase {
 	return &UserUsecase{
 		userRepo:       u,
 		postRepo:       p,
+		albumRepo:      a,
 		likeRepo:       lr,
 		contextTimeout: t,
 		sessionManager: sm,
@@ -91,6 +93,7 @@ func (uu *UserUsecase) GetUserById(c context.Context, id int) (*models.User, err
 		return nil, err
 	}
 	user.Posts, err = uu.postRepo.GetUserPosts(ctx, user)
+	user.Albums, err = uu.albumRepo.GetUserAlbums(ctx, user)
 
 	for i, _ := range user.Posts {
 		isLiked, err := uu.likeRepo.IsLiked(ctx, user.ID, user.Posts[i].ID)

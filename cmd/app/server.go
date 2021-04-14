@@ -7,6 +7,9 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
+	_albumDelivery "my-motivation/internal/app/album/delivery/http"
+	_albumRepo "my-motivation/internal/app/album/repository/psql"
+	_albumUsecase "my-motivation/internal/app/album/usecase"
 	_friendHttpDelivery "my-motivation/internal/app/friend/delivery/http"
 	_friendRepo "my-motivation/internal/app/friend/repository/psql"
 	_friendUsecase "my-motivation/internal/app/friend/usecase"
@@ -14,6 +17,9 @@ import (
 	"my-motivation/internal/app/models"
 	"my-motivation/internal/pkg/utils/logger"
 
+	_likeHttpDelivery "my-motivation/internal/app/like/delivery/http"
+	_likeRepoPsql "my-motivation/internal/app/like/repository/psql"
+	_likeUsecase "my-motivation/internal/app/like/usecase"
 	_postHttpDelivery "my-motivation/internal/app/post/delivery/http"
 	_postRepo "my-motivation/internal/app/post/repository/psql"
 	_postUsecase "my-motivation/internal/app/post/usecase"
@@ -23,9 +29,6 @@ import (
 	//_userRepo "my-motivation/internal/app/user/repository"
 	//_postRepo "my-motivation/internal/app/post/repository"
 	_sessionManager "my-motivation/internal/app/session/psql"
-	_likeUsecase "my-motivation/internal/app/like/usecase"
-	_likeHttpDelivery "my-motivation/internal/app/like/delivery/http"
-	_likeRepoPsql "my-motivation/internal/app/like/repository/psql"
 	"net/http"
 	"os"
 	"time"
@@ -38,8 +41,13 @@ func getPostgres() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+<<<<<<< HEAD
+	//Только во ремя разработки автомигрете
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{}, models.Album{}, models.AlbumImg{})
+=======
 
 	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{})
+>>>>>>> c4aef9396280486fc900272d2af6fda22c3086f3
 	return db
 }
 
@@ -51,18 +59,21 @@ func main() {
 	friendRepo := _friendRepo.NewFriendRepoPsql(getPostgres())
 	sessionManager := _sessionManager.NewSessionsManagerPsql(getPostgres())
 	likeRepo := _likeRepoPsql.NewLikeRepoPsql(getPostgres())
+	albumRepo := _albumRepo.NewAlbumRepoPsql(getPostgres())
 
 	timeoutContext := 2 * time.Second
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
+	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, albumRepo, timeoutContext, sessionManager, likeRepo)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
 	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
 	likeUsecase := _likeUsecase.NewLikeUsecase(likeRepo, timeoutContext, sessionManager)
+	albumUsecase := _albumUsecase.NewAlbumUsecase(userRepo, albumRepo, timeoutContext, sessionManager)
 
 	r := mux.NewRouter()
 	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
 	_postHttpDelivery.NewPostHandler(r, postUsecase, log)
 	_friendHttpDelivery.NewFiendHandler(r, friendUsecase, log)
 	_likeHttpDelivery.NewLikeHandler(r, likeUsecase, log)
+	_albumDelivery.NewAlbumHandler(r, albumUsecase, log)
 	r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("../../static/"))))
 
 	r.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
