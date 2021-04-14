@@ -18,13 +18,11 @@ type Album struct {
 
 type AlbumsUsecase interface {
 	SaveAlbum(ctx context.Context, session string, fileHandlers map[string][]*multipart.FileHeader, album *Album) error
-	//GetPosts(ctx context.Context, session string) ([]Post, error)
-	//GetPost(ctx context.Context, id int) (*Post, error)
+	GetAlbum(c context.Context, session string, albumID int) (*Album, error)
 }
 
 type AlbumRepository interface {
 	SaveAlbum(ctx context.Context, album *Album, userOwner *User, fileHandlers map[string][]*multipart.FileHeader) error
-	//GetPosts(ctx context.Context) ([]Post, error)
-	//GetUserPosts(ctx context.Context, u *User) ([]Post, error)
-	//GetPost(ctx context.Context, id int) (*Post, error)
+	GetUserAlbums(ctx context.Context, u *User) ([]Album, error)
+	GetAlbum(ctx context.Context, albumID int) (*Album, error)
 }

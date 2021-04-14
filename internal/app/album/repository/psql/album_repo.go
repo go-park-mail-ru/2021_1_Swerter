@@ -59,3 +59,21 @@ func (arp *AlbumRepoPsql) storeImg(ctx context.Context, newAlbum *models.Album, 
 	}
 	return nil
 }
+
+func (arp *AlbumRepoPsql) GetUserAlbums(ctx context.Context, u *models.User) ([]models.Album, error) {
+	var albums []models.Album
+	err := arp.DB.WithContext(ctx).Preload("UrlImgs").Where("author_id = ?", u.ID).Find(&albums).Error
+	if err != nil {
+		return nil, err
+	}
+	return albums, nil
+}
+
+func (arp * AlbumRepoPsql) GetAlbum(ctx context.Context, albumID int) (*models.Album, error) {
+	album := &models.Album{}
+	err := arp.DB.WithContext(ctx).Preload("UrlImgs").Where("id = ?", albumID).Find(album).Error
+	if err != nil {
+		return nil, err
+	}
+	return album, nil
+}

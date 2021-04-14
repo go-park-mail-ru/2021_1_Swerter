@@ -24,6 +24,27 @@ func NewAlbumUsecase(ur models.UserRepository, ar models.AlbumRepository, timeou
 	}
 }
 
+func (au * AlbumUsecase) GetAlbum(c context.Context, session string, albumID int) (*models.Album, error)  {
+	ctx, cancel := context.WithTimeout(c, au.contextTimeout)
+	defer cancel()
+
+	userID, err := au.sessionManager.GetUserId(session)
+	if err != nil {
+		return nil, err
+	}
+
+	userOwner, err := au.UserRepo.GetUserById(ctx, userID)
+	if err != nil || userOwner == nil {
+		return nil, err
+	}
+
+	allbum, err := au.AlbumRepo.GetAlbum(ctx, albumID)
+	if err != nil {
+		return nil, err
+	}
+	return allbum, nil
+}
+
 func (au *AlbumUsecase) SaveAlbum(c context.Context, session string, fileHandlers map[string][]*multipart.FileHeader, album *models.Album) error {
 	userId, err := au.sessionManager.GetUserId(session)
 	if err != nil {
