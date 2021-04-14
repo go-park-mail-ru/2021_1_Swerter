@@ -6,7 +6,7 @@ FROM golang:alpine as builder
 RUN apk update && apk add --no-cache git
 
 # Set the current working directory inside the container 
-WORKDIR /app
+WORKDIR /cmd/app
 
 # Copy go mod and sum files 
 COPY go.mod go.sum ./
@@ -27,7 +27,10 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage.
-COPY --from=builder /app/server .
+COPY --from=builder /cmd/app/server .
+CMD ["mkdir static"]
+CMD ["mkdir static/posts"]
+CMD ["mkdir static/usersAvatar"]
 
 #Command to run the executable
 CMD [ "./server" ]
