@@ -41,13 +41,8 @@ func getPostgres() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
-<<<<<<< HEAD
-	//Только во ремя разработки автомигрете
-	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{}, models.Album{}, models.AlbumImg{})
-=======
 
-	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{})
->>>>>>> c4aef9396280486fc900272d2af6fda22c3086f3
+	db.AutoMigrate(&models.User{}, &models.Post{}, &models.Session{}, &models.Friend{}, &models.Like{}, models.Img{}, models.Album{}, models.AlbumImg{})
 	return db
 }
 
