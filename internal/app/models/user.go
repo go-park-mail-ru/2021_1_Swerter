@@ -8,16 +8,17 @@ import (
 
 type User struct {
 	gorm.Model
-	ID          int    `json:"id" gorm:"primaryKey;autoIncrement:true;"`
-	Login       string `json:"login"`
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	OldPassword string `json:"oldPassword"`
-	Password    string `json:"password"`
-	Posts       []Post `json:"postsData" gorm:"foreignKey:AuthorId"`
-	Avatar      string `json:"avatar"`
-	IsNotified  bool   `json:"isNotified"`
-	IsFriend    bool   `json:"isFriend"`
+	ID          int     `json:"id" gorm:"primaryKey;autoIncrement:true;"`
+	Login       string  `json:"login"`
+	FirstName   string  `json:"firstName"`
+	LastName    string  `json:"lastName"`
+	OldPassword string  `json:"oldPassword"`
+	Password    string  `json:"password"`
+	Posts       []Post  `json:"postsData" gorm:"foreignKey:AuthorId"`
+	Albums      []Album `json:"albumsData" gorm:"foreignKey:AuthorId"`
+	Avatar      string  `json:"avatar"`
+	IsNotified  bool    `json:"isNotified"`
+	IsFriend    bool    `json:"isFriend"`
 }
 
 func (u *User) Public() User {
