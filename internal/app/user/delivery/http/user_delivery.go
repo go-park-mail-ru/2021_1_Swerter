@@ -161,8 +161,8 @@ func (uh *UserHandler) login(w http.ResponseWriter, r *http.Request) {
 		Name:    "session_id",
 		Value:   session.ID,
 		Expires: expiration,
-		//SameSite: http.SameSiteNoneMode,
-		//Secure: true,
+		SameSite: http.SameSiteNoneMode,
+		Secure: true,
 	}
 
 	http.SetCookie(w, &cookie)
