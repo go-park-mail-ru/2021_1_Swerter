@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server ./cmd/app
 
 # Start a new stage from scratch
 FROM alpine:latest
@@ -28,11 +28,6 @@ WORKDIR /root/
 
 # Copy the Pre-built binary file from the previous stage.
 COPY --from=builder /app/server .
-COPY --from=builder /app/.env .
-COPY --from=builder /app/templates ./templates
-COPY --from=builder /app/pkg ./pkg
-COPY --from=builder /app/migrations ./migrations
-# COPY --from=builder /app/tls ./tls
 
 #Command to run the executable
 CMD [ "./server" ]

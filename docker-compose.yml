@@ -15,10 +15,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - api:/usr/src/app/
+    ports:
+      - '8000:8000' #Проверьте что ваш порт свободен, первый порт(5400) - внешний(ваш)
     depends_on:
       - postgres
+    restart: always
 
   postgres:
     image: postgres:13.2
