@@ -61,7 +61,7 @@ func main() {
 
 	//usecase
 	timeoutContext := 2 * time.Second
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
+	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, albumRepo, timeoutContext, sessionManager, likeRepo)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
 	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
 	likeUsecase := _likeUsecase.NewLikeUsecase(likeRepo, timeoutContext, sessionManager)
