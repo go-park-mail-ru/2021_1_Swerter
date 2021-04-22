@@ -78,7 +78,7 @@ func (urp *UserRepoPsql) UploadAvatar(ctx context.Context, u *models.User, file 
 	salt := fmt.Sprintf(t.Format(time.RFC3339))
 
 	u.Avatar = hasher.Hash(u.Login + salt)
-	f, err := os.OpenFile("../../static/usersAvatar/"+u.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("./static/usersAvatar/"+u.Avatar, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
