@@ -15,6 +15,7 @@ import (
 	_friendUsecase "my-motivation/internal/app/friend/usecase"
 	"my-motivation/internal/app/middleware"
 	"my-motivation/internal/app/models"
+	user_service_client "my-motivation/internal/pkg/client/user-service-client"
 	"my-motivation/internal/pkg/utils/logger"
 
 	_likeHttpDelivery "my-motivation/internal/app/like/delivery/http"
@@ -59,15 +60,18 @@ func main() {
 	likeRepo := _likeRepoPsql.NewLikeRepoPsql(getPostgres())
 	albumRepo := _albumRepo.NewAlbumRepoPsql(getPostgres())
 
+	//services
+	us, _ := user_service_client.New()
+
 	//usecase
 	timeoutContext := 2 * time.Second
-	userUsecase := _userUsecase.NewUserUsecase(userRepo, postRepo, albumRepo, timeoutContext, sessionManager, likeRepo)
+	userUsecase := _userUsecase.NewUserUsecase(us, userRepo, postRepo, albumRepo, timeoutContext, sessionManager, likeRepo)
 	postUsecase := _postUsecase.NewPostUsecase(userRepo, postRepo, timeoutContext, sessionManager, likeRepo)
 	friendUsecase := _friendUsecase.NewFriendUsecase(friendRepo, userRepo, timeoutContext, sessionManager)
 	likeUsecase := _likeUsecase.NewLikeUsecase(likeRepo, timeoutContext, sessionManager)
 	albumUsecase := _albumUsecase.NewAlbumUsecase(userRepo, albumRepo, timeoutContext, sessionManager)
-	//delivery
 
+	//delivery
 	r := mux.NewRouter()
 	_userHttpDelivery.NewUserHandler(r, userUsecase, log)
 	_postHttpDelivery.NewPostHandler(r, postUsecase, log)

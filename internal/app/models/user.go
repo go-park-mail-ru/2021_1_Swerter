@@ -14,12 +14,14 @@ type User struct {
 	LastName    string  `json:"lastName"`
 	OldPassword string  `json:"oldPassword"`
 	Password    string  `json:"password"`
-	Posts       []Post  `json:"postsData" gorm:"foreignKey:AuthorId"`
-	Albums      []Album `json:"albumsData" gorm:"foreignKey:AuthorId"`
 	Avatar      string  `json:"avatar"`
 	IsNotified  bool    `json:"isNotified"`
 	IsFriend    bool    `json:"isFriend"`
+	Posts       []Post  `json:"postsData" gorm:"foreignKey:AuthorId"`
+	Albums      []Album `json:"albumsData" gorm:"foreignKey:AuthorId"`
 }
+
+
 
 func (u *User) Public() User {
 	return User{

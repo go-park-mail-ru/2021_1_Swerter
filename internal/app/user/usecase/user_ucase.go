@@ -2,23 +2,31 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
 	_sessionManager "my-motivation/internal/app/session/psql"
 	"time"
 )
 
+type IUserServiceController interface {
+	Register(ctx context.Context, u* models.User) error
+}
+
 type UserUsecase struct {
+	//TODO:удалить репозиторий отсюда
 	userRepo       models.UserRepository
 	postRepo       models.PostsRepository
 	albumRepo      models.AlbumRepository
 	likeRepo       models.LikeRepository
 	contextTimeout time.Duration
+	userServiceApi IUserServiceController
 	sessionManager *_sessionManager.SessionsManagerPsql
 }
 
-func NewUserUsecase(u models.UserRepository, p models.PostsRepository, a models.AlbumRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql, lr models.LikeRepository) models.UserUsecase {
+func NewUserUsecase(us IUserServiceController, u models.UserRepository, p models.PostsRepository, a models.AlbumRepository, t time.Duration, sm *_sessionManager.SessionsManagerPsql, lr models.LikeRepository) models.UserUsecase {
 	return &UserUsecase{
+		userServiceApi: us,
 		userRepo:       u,
 		postRepo:       p,
 		albumRepo:      a,
@@ -31,12 +39,13 @@ func NewUserUsecase(u models.UserRepository, p models.PostsRepository, a models.
 func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
-
-	err := uu.userRepo.SaveUser(ctx, u)
-	if err != nil {
-		return err
-	}
-	return nil
+	fmt.Println("try register")
+	err := uu.userServiceApi.Register(ctx, u)
+	return err
+	//err := uu.userRepo.SaveUser(ctx, u)
+	//if err != nil {
+	//	return err
+	//}
 }
 
 //пока не используется на уровне usecase
