@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"mime/multipart"
 	"my-motivation/internal/app/models"
 	_sessionManager "my-motivation/internal/app/session/psql"
@@ -39,13 +38,8 @@ func NewUserUsecase(us IUserServiceController, u models.UserRepository, p models
 func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
-	fmt.Println("try register")
 	err := uu.userServiceApi.Register(ctx, u)
 	return err
-	//err := uu.userRepo.SaveUser(ctx, u)
-	//if err != nil {
-	//	return err
-	//}
 }
 
 //пока не используется на уровне usecase

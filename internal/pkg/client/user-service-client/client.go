@@ -35,3 +35,12 @@ func (c *Client) Register(ctx context.Context, u* models.User) error  {
 	})
 	return err
 }
+
+func (c *Client) Login(ctx context.Context, u* models.User) error  {
+	fmt.Println("lalalala")
+	_, err := c.api.Login(ctx, &desc.RegisterRequest{
+		Login:    u.Login,
+		Password: u.Password,
+	})
+	return err
+}
