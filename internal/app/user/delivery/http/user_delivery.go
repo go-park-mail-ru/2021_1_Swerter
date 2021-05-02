@@ -180,6 +180,14 @@ func (uh *UserHandler) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
+	err = uh.UserUsecase.Logout(ctx, session.Value)
+	if err != nil {
+		uh.logger.Error(err.Error())
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
 }

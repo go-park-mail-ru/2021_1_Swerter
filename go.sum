@@ -155,6 +155,16 @@ gitlab.com/Burunduck/user-service v0.0.0-20210425170231-b4a01c398143 h1:DoYBMCIG
 gitlab.com/Burunduck/user-service v0.0.0-20210425170231-b4a01c398143/go.mod h1:3NLX6WQxwIbR1SQjNmoRlsFAL+Gpihf8YRLNYGD0lOQ=
 gitlab.com/Burunduck/user-service v0.0.0-20210427172815-e6e837c1941e h1:LM6XG1XGp09L9W34Lc7/yFb0FSX/6fuJVZKLuqfXqR4=
 gitlab.com/Burunduck/user-service v0.0.0-20210427172815-e6e837c1941e/go.mod h1:3NLX6WQxwIbR1SQjNmoRlsFAL+Gpihf8YRLNYGD0lOQ=
+gitlab.com/Burunduck/user-service v0.0.0-20210502140403-f8343fdc68d9 h1:FtsmiRsYp+PcAQwzuLSSxXKmRNPHvT5EMFtFA/lRdWg=
+gitlab.com/Burunduck/user-service v0.0.0-20210502140403-f8343fdc68d9/go.mod h1:3NLX6WQxwIbR1SQjNmoRlsFAL+Gpihf8YRLNYGD0lOQ=
+gitlab.com/Burunduck/user-service v0.0.0-20210502145131-4f078313d748 h1:1aw9pdA81uKJ67szpOu/tbxP5HYn44p/Wb8P6hsTvpk=
+gitlab.com/Burunduck/user-service v0.0.0-20210502145131-4f078313d748/go.mod h1:3NLX6WQxwIbR1SQjNmoRlsFAL+Gpihf8YRLNYGD0lOQ=
+gitlab.com/Burunduck/user-service v0.0.0-20210502152119-2fd09649f752 h1:wM1Xh17f7/n6NTecC4CUb5J4nTxjEgljYOYL3WDKq1M=
+gitlab.com/Burunduck/user-service v0.0.0-20210502152119-2fd09649f752/go.mod h1:fAP3ZXPcmSGrvF5aeJo9UIsNZdYRiLtlvA3NiVozGkE=
+gitlab.com/Burunduck/user-service v0.3.0 h1:YA1ijrtVHmn3h93MJtSw9thFLKtGwha0JOvslpMG9Q4=
+gitlab.com/Burunduck/user-service v0.3.0/go.mod h1:zwqp3PIz4Z4/UehyJsJU9HxQ6M9jsIH+Uglw24xp6Sg=
+gitlab.com/Burunduck/user-service v0.3.1 h1:eBwkk1VGEoeFoTbGmp0nPdreUnc1xbM9RLDNkGVcDXY=
+gitlab.com/Burunduck/user-service v0.3.1/go.mod h1:zwqp3PIz4Z4/UehyJsJU9HxQ6M9jsIH+Uglw24xp6Sg=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/atomic v1.6.0 h1:Ezj3JGmsOnG1MoRWQkPBsKLe9DwWD9QeXzTRzzldNVk=

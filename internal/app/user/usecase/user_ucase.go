@@ -9,8 +9,10 @@ import (
 )
 
 type IUserServiceController interface {
-	Register(ctx context.Context, u* models.User) error
-	Login(ctx context.Context, u* models.User) (string, error)
+	Register(ctx context.Context, u *models.User) error
+	Login(ctx context.Context, u *models.User) (string, error)
+	GetUserBySession(ctx context.Context, session string) (*models.User, error)
+	Logout(ctx context.Context, session string) error
 }
 
 type UserUsecase struct {
@@ -50,29 +52,34 @@ func (uu *UserUsecase) Login(c context.Context, user *models.User) (string, erro
 	return sess, err
 }
 
-//пока не используется на уровне usecase
-func (uu *UserUsecase) GetPrivateUser(c context.Context, login string, password string) (*models.User, error) {
+func (uu *UserUsecase) GetUserBySession(c context.Context, session string) (*models.User, error) {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
-
-	user, err := uu.userRepo.GetPrivateUser(ctx, login, password)
+	user, err := uu.userServiceApi.GetUserBySession(ctx, session)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (uu *UserUsecase) GetUserBySession(c context.Context, sessionValue string) (*models.User, error) {
-	userId, err := uu.sessionManager.GetUserId(sessionValue)
+func (uu *UserUsecase) Logout(c context.Context, session string) error {
+	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
+	defer cancel()
+	err := uu.userServiceApi.Logout(ctx, session)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//пока не используется на уровне usecase
+func (uu *UserUsecase) GetPrivateUser(c context.Context, login string, password string) (*models.User, error) {
+	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
+	defer cancel()
+	user, err := uu.userRepo.GetPrivateUser(ctx, login, password)
 	if err != nil {
 		return nil, err
 	}
-
-	user, err := uu.GetUserById(c, userId)
-	if err != nil {
-		return nil, err
-	}
-
 	return user, nil
 }
 

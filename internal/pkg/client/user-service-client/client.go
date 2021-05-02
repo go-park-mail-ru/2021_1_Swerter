@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"my-motivation/internal/app/models"
+	"strconv"
 )
 
 type Client struct {
@@ -28,20 +29,41 @@ func New() (*Client, error) {
 }
 
 func (c *Client) Register(ctx context.Context, u* models.User) error  {
-	fmt.Println("lalalala")
 	_, err := c.api.Register(ctx, &desc.RegisterRequest{
 		Login:    u.Login,
 		Password: u.Password,
+		FirstName: u.FirstName,
+		LastName: u.LastName,
 	})
 	return err
 }
 
 func (c *Client) Login(ctx context.Context, u* models.User) (string, error)  {
-	fmt.Println("lalalala")
 	lr, err := c.api.Login(ctx, &desc.LoginRequest{
 		Login:    u.Login,
 		Password: u.Password,
 	})
 	sess := lr.Session
 	return sess, err
+}
+
+func (c *Client) GetUserBySession(ctx context.Context, session string) (*models.User, error)  {
+	sr, err := c.api.GetUserBySession(ctx, &desc.UserBySessionRequest{
+		Session: session,
+	})
+	id,_ := strconv.Atoi(sr.User.Id)
+	u := models.User{
+		ID: id,
+		FirstName: sr.User.FirstName,
+		LastName: sr.User.LastName,
+	}
+	return &u, err
+}
+
+func (c *Client) Logout(ctx context.Context, session string) error {
+	_, err := c.api.Logout(ctx, &desc.LogoutRequest{Session: session})
+	if err != nil {
+		return err
+	}
+	return nil
 }
