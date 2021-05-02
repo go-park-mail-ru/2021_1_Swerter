@@ -10,6 +10,7 @@ import (
 
 type IUserServiceController interface {
 	Register(ctx context.Context, u* models.User) error
+	Login(ctx context.Context, u* models.User) (string, error)
 }
 
 type UserUsecase struct {
@@ -35,11 +36,18 @@ func NewUserUsecase(us IUserServiceController, u models.UserRepository, p models
 	}
 }
 
-func (uu *UserUsecase) SaveUser(c context.Context, u *models.User) error {
+func (uu *UserUsecase) Register(c context.Context, u *models.User) error {
 	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
 	defer cancel()
 	err := uu.userServiceApi.Register(ctx, u)
 	return err
+}
+
+func (uu *UserUsecase) Login(c context.Context, user *models.User) (string, error) {
+	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
+	defer cancel()
+	sess, err := uu.userServiceApi.Login(ctx, user)
+	return sess, err
 }
 
 //пока не используется на уровне usecase
@@ -66,22 +74,6 @@ func (uu *UserUsecase) GetUserBySession(c context.Context, sessionValue string) 
 	}
 
 	return user, nil
-}
-
-func (uu *UserUsecase) LoginUser(c context.Context, user *models.User) (*models.Session, error) {
-	ctx, cancel := context.WithTimeout(c, uu.contextTimeout)
-	defer cancel()
-
-	u, err := uu.userRepo.GetPrivateUser(ctx, user.Login, user.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	sess, err := uu.sessionManager.Create(u.ID)
-	if err != nil {
-		return nil, err
-	}
-	return sess, nil
 }
 
 func (uu *UserUsecase) GetUserByLogin(ctx context.Context, login string) (*models.User, error) {

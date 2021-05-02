@@ -36,11 +36,12 @@ func (c *Client) Register(ctx context.Context, u* models.User) error  {
 	return err
 }
 
-func (c *Client) Login(ctx context.Context, u* models.User) error  {
+func (c *Client) Login(ctx context.Context, u* models.User) (string, error)  {
 	fmt.Println("lalalala")
-	_, err := c.api.Login(ctx, &desc.RegisterRequest{
+	lr, err := c.api.Login(ctx, &desc.LoginRequest{
 		Login:    u.Login,
 		Password: u.Password,
 	})
-	return err
+	sess := lr.Session
+	return sess, err
 }

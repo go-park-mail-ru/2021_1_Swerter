@@ -148,7 +148,7 @@ func (uh *UserHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := r.Context()
-	session, err := uh.UserUsecase.LoginUser(ctx, &user)
+	session, err := uh.UserUsecase.Login(ctx, &user)
 	if err != nil {
 		uh.logger.Error("no authorization")
 		w.WriteHeader(http.StatusForbidden)
@@ -159,7 +159,7 @@ func (uh *UserHandler) login(w http.ResponseWriter, r *http.Request) {
 	expiration := time.Now().Add(10 * time.Hour)
 	cookie := http.Cookie{
 		Name:    "session_id",
-		Value:   session.ID,
+		Value:   session,
 		Expires: expiration,
 		//SameSite: http.SameSiteNoneMode,
 		//Secure: true,
@@ -192,7 +192,7 @@ func (uh *UserHandler) register(w http.ResponseWriter, r *http.Request) {
 	decoder.Decode(&newUser)
 
 	ctx := r.Context()
-	err := uh.UserUsecase.SaveUser(ctx, &newUser)
+	err := uh.UserUsecase.Register(ctx, &newUser)
 	if err != nil {
 		uh.logger.Error(err.Error())
 		w.WriteHeader(http.StatusForbidden)

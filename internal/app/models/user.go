@@ -47,9 +47,8 @@ func (u *User) Private() User {
 }
 
 type UserUsecase interface {
-
-	SaveUser(ctx context.Context, u *User) error
-	LoginUser(c context.Context, user *User) (*Session, error)
+	Register(ctx context.Context, u *User) error
+	Login(c context.Context, user *User) (string, error)
 	GetPrivateUser(ctx context.Context, login string, password string) (*User, error)
 	GetUserBySession(c context.Context, sessionValue string) (*User, error)
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
